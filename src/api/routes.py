@@ -19,7 +19,7 @@ def register():
     data = request.get_json()
     exist=User.query.filter_by(email=data.get("email")).first()
     if exist:
-        return jsonify({"Msg": "Email already exists"}), 400
+        return jsonify({"msg": "email already exists"}), 400
 
     email = data.get('email')
     password = data.get('password')
@@ -32,7 +32,7 @@ def register():
 
     if role not in [RoleEnum.PATIENT.value, RoleEnum.DOCTOR.value]:
         print(RoleEnum.PATIENT.value)
-        return jsonify({"Error": "Invalid role"}), 400
+        return jsonify({"error": "Invalid role"}), 400
    
     hashed_password = generate_password_hash(password)
     print(hashed_password)
@@ -56,28 +56,25 @@ def register():
         medical_consultant_price = data.get('medical_consultant_price')
         
         if Doctor.query.filter_by(user_id=user.id).first():
-            return jsonify({"Error": "Doctor already exists for this user"}), 400
- 
+            return jsonify({"error": "Doctor already exists for this user"}), 400
+
         doctor = Doctor(
             user_id=user.id,
             speciality=speciality,
             time_availability=time_availability,
             medical_consultant_price=medical_consultant_price)
-        
-        db.session.add(doctor)
-        db.session.commit()
-        return jsonify({"Msg": "User created"}), 201
-        
+
 @api.route('/appointments', methods=['GET', 'POST'])
 def manage_appointments():
     if request.method == 'POST':
         data = request.json
+        # Check if the appointment time is available
         for appointment in appointments:
             if appointment['date'] == data['date']:
-                return jsonify({"Msg": "Time slot is not available!"}), 400
+                return jsonify({"message": "Time slot is not available!"}), 400
         
         appointments.append(data)
-        return jsonify({"Msg": "Appointment added!", "appointment": data}), 201
+        return jsonify({"message": "Appointment added!", "appointment": data}), 201
     return jsonify(appointments), 200
 
 @api.route('/signup', methods=['POST'])
@@ -86,24 +83,26 @@ def signup_user():
         body = request.get_json()
         exist_user=User.query.filter_by(email=body["email"]).first()
         if exist_user:
-            return jsonify({"Msg": "User exists already"}), 404
+            return jsonify({"msg": "User exists already"}), 404
         pw_hash=current_app.bcrypt.generate_password_hash(body["password"]).decode("utf-8")
         new_user=User(
             email=body["email"],
+            # password=pw_hash,
             password=pw_hash,
             first_name=body["first_name"],
             last_name=body["last_name"],
-            country=body["country"],
             city=body["city"],
-            age=body["age"],
-            rol=body["role"],
+            country=body["country"],
+            address=body["address"],
+            photo=body["photo"],
+            birthday=body["birthday"],
             is_active=True
         )
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({"Msg": "User created"}), 201
+        return jsonify({"msg": "User created"}), 201
     except Exception as e:
-        return jsonify({"Msg": "Error creating user", "Error": str(e)}), 500
+        return jsonify({"msg": "Error al crear el usuario", "error": str(e)}), 500
 
 @api.route('/signup/medical', methods=['POST'])
 @jwt_required()
@@ -113,27 +112,28 @@ def signup_medical():
         user_id=get_jwt_identity()
         exist_user=User.query.get(user_id)
         if not exist_user:
-            return jsonify({"Msg": "User not found"}), 404
+            return jsonify({"msg": "User not found"}), 404
         new_medical=Doctor(
             user_id=user_id,
-            speciality= body["speciality"],
+            # password=pw_hash,
+            specialty= body["specialty"],
             university= body["university"],
             time_availability=body["time_availability"],
             medical_consultation_price=body["medical_consultation_price"]
         )
-        db.session.add(new_medical)
+        db.session.add(Doctor)
         db.session.commit()
 
-        return jsonify(new_medical.serialize()), 201
+        return jsonify(Doctor.serialize()), 201
     except Exception as e:
-        return jsonify({"Error": "Unexpected error"}), 500
+        return jsonify(User.serialize()), 201
 
 
 @api.route('/doctors', methods=['GET'])
 def get_doctors():
     doctors=Doctor.query.all() 
     if doctors==[]:
-        return jsonify({"Msg": "There aren't doctors"}), 400
+        return jsonify({"msg": "doctors don't exist"}), 400
     results=list(map(lambda item:item.serialize(), doctors))
     return jsonify (results), 200
 
@@ -144,17 +144,17 @@ def login():
     password=data.get("password", None)
     user=User.query.filter_by(email=email).first()
     if not user:
-        return jsonify({"Msg": "User not found"}), 404
+        return jsonify({"msg": "user not found"}), 404
     valid_password=  check_password_hash(user.password, password)
     if not valid_password:
-        return jsonify({"Msg": "Invalid email or password"}), 400
+        return jsonify({"msg": "invalid email or password"}), 400
     access_token=create_access_token(identity={"id": user.id, "role": user.role.value})
     result={}
     result["access_token"]=access_token
     if user.role.value == RoleEnum.DOCTOR.value:
         doctor=Doctor.query.filter_by(user_id=user.id).first()
         if not doctor:
-            return jsonify({"Msg": "Doctor not found"}), 404
+            return jsonify({"msg": "doctor not found"}), 404
         result["doctor"]=doctor.serialize()
         return jsonify(result), 200
     result["user"]=user.serialize()
@@ -168,10 +168,11 @@ def user_logout():
         token_blocked=TokenBlockedList(jti=token_data["jti"])
         db.session.add(token_blocked)
         db.session.commit()
-        return jsonify({"Msg":"Closed session"}), 200
+        return jsonify({"msg":"Session cerrada"}), 200
     except Exception as e:
-        return jsonify({"Msg": "Logout error", "Error": str(e)}), 500
+        return jsonify({"msg": "Error al cierre de sesión", "error": str(e)}), 500
 
+# Devuelve una lista de todas las especialidades
 @api.route('/specialities', methods=['GET'])
 def get_especialities():
     specialities = db.session.query(Doctor.speciality).distinct().all()
