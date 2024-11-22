@@ -22,13 +22,12 @@ export const DoctorCard = () => {
 
         fetchDoctors();
 
-    }, [actions, store.allDoctors.length]);
+    }, []);
 
     if (loading) {
         return <p>Loading...</p>
     }
-
-
+    
     return (
         <div className="container">
             {store.allDoctors.length > 0 ? (

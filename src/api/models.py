@@ -52,11 +52,11 @@ class Doctor(db.Model):
     time_availability = db.Column(db.String(100), nullable=False)
     medical_consultant_price = db.Column(db.Float, nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id")) 
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False) 
     user= db.relationship(User)
     appointments = db.relationship("Appointment", back_populates="doctor", lazy=True)
 
-    def __repr__(self):
+    def __repr__(self): 
         return f'<Doctor {self.id}>'
 
     def serialize(self):
@@ -67,7 +67,6 @@ class Doctor(db.Model):
             "time_availability": self.time_availability,
             "medical_consultant_price": self.medical_consultant_price,
         }
-
 
 class Appointment(db.Model):
     __tablename__ = 'appointments'
@@ -89,7 +88,7 @@ class Appointment(db.Model):
             "patient": self.patient.serialize() if self.patient else None, 
             "doctor": self.doctor.serialize() if self.doctor else None
         }
-
+    
 class TokenBlockedList(db.Model):
     __tablename__ = 'token_blocked_list'  
     

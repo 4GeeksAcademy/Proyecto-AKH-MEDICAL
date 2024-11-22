@@ -12,20 +12,20 @@ const getState = ({ getStore, getActions, setStore }) => {
 		actions: {
 			// Use getActions to call a function within a fuction
 
-			fetchSchedule: async () =>{
+			fetchSchedule: async () => {
 				try {
-					const response = await fetch(process.env.BACKEND_URL +"/api/appointments",);
+					const response = await fetch(process.env.BACKEND_URL + "/api/appointments",);
 					if (!response.ok) {
 						throw new Error('Error fetching appointments');
 					}
 					const data = await response.json();
-					setStore({appointments:data});
+					setStore({ appointments: data });
 					return data;
 				} catch (error) {
 					setErrorMessage('error en flux');
 				}
 			},
-			addApoint:async (newAppointment) =>{
+			addApoint: async (newAppointment) => {
 				try {
 					const response = await fetch(process.env.BACKEND_URL + "/api/appointments", {
 						method: 'POST',
@@ -34,7 +34,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 							"Content-Type": "application/json"
 						},
 					});
-		
+
 					const contentType = response.headers.get("content-type");
 					if (!response.ok) {
 						if (contentType && contentType.includes("application/json")) {
@@ -44,17 +44,18 @@ const getState = ({ getStore, getActions, setStore }) => {
 							throw new Error('Unexpected error occurred.');
 						}
 					}
-		
+
 					if (contentType && contentType.includes("application/json")) {
 						const addedAppointment = await response.json();
 						return addedAppointment;
 					} else {
 						throw new Error('Unexpected content type.');
-					}}catch (error) {
-						console.log(error.message || 'Error adding appointment. Please try again.');
 					}
+				} catch (error) {
+					console.log(error.message || 'Error adding appointment. Please try again.');
+				}
 			},
-			
+
 			getLogin: async (email, password) => {
 				try {
 					// fetching data from the backend
@@ -86,9 +87,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			sign_up: async (data) => {
+				console.log(data)
 				try {
 					// fetching data from the backend
-					await fetch(process.env.BACKEND_URL + "api/register", {
+					await fetch(process.env.BACKEND_URL + "/api/register", {
 						method: "POST",
 						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify(data)
@@ -163,7 +165,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log("Error fetching doctors", error);
 				}
 			}
-			
+
 		}
 	};
 };

@@ -8,7 +8,7 @@ export const DoctorList = () => {
 
     useEffect(() => {
         actions.getDoctorBySpeciality();
-    }, [actions])
+    }, [])
 
     return (
         <div className="row">
