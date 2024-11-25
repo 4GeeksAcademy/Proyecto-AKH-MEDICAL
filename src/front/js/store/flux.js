@@ -7,7 +7,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 			allDoctors: [],
 			doctors: [],
 			auth: false,
-			appointments: []
+			appointments: [],
+			selectedSpeciality: null,
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -102,8 +103,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 
-			setSpecialities: (specialities) => {
-				setStore({ specialities })
+			setSelectedSpeciality: (speciality) => {
+				console.log("Updating selected speciality:", speciality);
+				setStore({ selectedSpeciality: speciality });
 			},
 
 			getSpecialities: async () => {
@@ -132,14 +134,18 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			getAllDoctors: async () => {
+				const store = getStore();
+				console.log("Llamando a getAllDoctors");
+				if (store.allDoctors.length > 0) {
+					console.log("Evita llamada innecesaria: ya hay doctores en el estado")
+					return;
+				}
 				try {
 					const response = await fetch(process.env.BACKEND_URL + "/api/doctors")
 					if (!response.ok) {
 						throw new Error("Failed to get all doctors");
 					}
 					const data = await response.json()
-
-
 					setStore({ allDoctors: data });
 					return data;
 				} catch (error) {
@@ -148,24 +154,24 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 			},
 
-			getDoctorBySpeciality: async (id) => {
+			getDoctorBySpeciality: async (speciality) => {
 				try {
-					const url = id
-						? `${process.env.BACKEND_URL}/api/doctors?speciality=${id}`
-						: `${process.env.BACKEND_URL}/api/doctors`;
+					let url = `${process.env.BACKEND_URL}/api/doctors`;
+					if (speciality) {
+						url += `?speciality=${speciality}`;
+					}
 
 					const response = await fetch(url);
 					if (!response.ok) {
-						throw new Error('Especialidad no obtenida');
+						throw new Error('Failed to fetch doctors');
 					}
+
 					const data = await response.json();
 					setStore({ doctors: data });
-					return data;
 				} catch (error) {
 					console.log("Error fetching doctors", error);
 				}
 			}
-
 		}
 	};
 };

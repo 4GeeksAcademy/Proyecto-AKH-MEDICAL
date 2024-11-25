@@ -9,12 +9,24 @@ export const Navbar = () => {
 	const { store, actions } = useContext(Context);
 	const [specialities, setSpecialities] = useState([]);
 	const [isDataLoaded, setIsDataLoaded] = useState(false);
-	const [selectedSpecialitiesId, setSelectSpecialitiesId] = useState(null);
+	const [selectedSpeciality, setSelectSpecialitiesId] = useState(null);
+
 
 	const handleSpecialitySelectId = (speciality) => {
-		setSelectSpecialitiesId(speciality);
-		actions.getDoctorBySpeciality(speciality);
-	}
+		console.log("Especialidad seleccionada:", speciality);
+		if (speciality === selectedSpeciality) {
+			console.log("Deseleccionando especialidad:", speciality);
+			setSelectSpecialitiesId(null); // Desmarca la especialidad
+			actions.setSelectedSpeciality(null); // Actualiza el store
+			actions.getDoctorBySpeciality(null); // Llama a la API para obtener todos los doctores
+		} else {
+			console.log("Seleccionando especialidad:", speciality);
+			setSelectSpecialitiesId(speciality); // Marca la especialidad seleccionada
+			actions.setSelectedSpeciality(speciality); // Actualiza el store
+			actions.getDoctorBySpeciality(speciality); // Llama a la API con la especialidad seleccionada
+		}
+	};
+
 
 
 	useEffect(() => {
@@ -29,7 +41,7 @@ export const Navbar = () => {
 		}
 
 		gettingSpecialities();
-	}, [setIsDataLoaded, actions]);
+	}, []);
 
 
 	return (
@@ -59,8 +71,15 @@ export const Navbar = () => {
 								<ul className="dropdown-menu">
 									{Array.isArray(specialities) && specialities.length > 0 ? (
 										specialities.map((speciality, index) => (
-											<li className="dropdown-item" key={index} onClick={() => handleSpecialitySelectId(speciality)}>
+											<li
+												className={`dropdown-item ${speciality === selectedSpeciality ? 'active' : ''}`}
+												key={index}
+												onClick={() => handleSpecialitySelectId(speciality)}
+											>
 												{speciality}
+												{speciality === selectedSpeciality && (
+													<i className="fa fa-check ms-2" /> // Ícono de check cuando está seleccionado
+												)}
 											</li>
 										))
 									) : (
