@@ -2,13 +2,15 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint, current_app
-from api.models import db, User, Doctor, RoleEnum, TokenBlockedList
+from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Appointment
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
+from datetime import datetime
+
 api = Blueprint('api', __name__)
 CORS(api)
 appointments = []
@@ -70,13 +72,65 @@ def register():
 def manage_appointments():
     if request.method == 'POST':
         data = request.json
-        for appointment in appointments:
-            if appointment['date'] == data['date']:
-                return jsonify({"Msg": "Time slot is not available!"}), 400
+        doctor_id = data.get('doctor_id')
+        patient_id = data.get('patient_id')
+        appointment_date = data.get('date')  # Fecha en formato ISO (YYYY-MM-DDTHH:MM:SS)
+
+        if not doctor_id or not patient_id or not appointment_date:
+            return jsonify({"Msg": "Missing required fields!"}), 400
+
+        # Convertir la fecha
+        try:
+            appointment_date = datetime.fromisoformat(appointment_date)
+        except ValueError:
+            return jsonify({"Msg": "Invalid date format. Use ISO format (YYYY-MM-DDTHH:MM:SS)"}), 400
+
+        # Buscar al doctor
+        doctor = Doctor.query.get(doctor_id)
+        if not doctor:
+            return jsonify({"Msg": "Doctor not found!"}), 404
+
+        # Validar la hora dentro del rango de disponibilidad del doctor
+        start_time, end_time = doctor.time_availability.split('-')
+        start_time = datetime.strptime(start_time.strip(), "%H:%M").time()
+        end_time = datetime.strptime(end_time.strip(), "%H:%M").time()
+
+        if not (start_time <= appointment_date.time() <= end_time):
+            return jsonify({"Msg": "Appointment time is outside the doctor's availability!"}), 400
+
+        # Verificar si ya existe una cita para el doctor en la misma fecha y hora
+        existing_appointment = Appointment.query.filter_by(
+            doctor_id=doctor_id,
+            date=appointment_date
+        ).first()
+
+        if existing_appointment:
+            return jsonify({"Msg": "This time slot is not available!"}), 400
+
+        # Crear la cita
+        new_appointment = Appointment(
+            doctor_id=doctor_id,
+            #patient_id=patient_id,
+            date=appointment_date
+        )
+        db.session.add(new_appointment)
+        db.session.commit()
+
+        return jsonify({"Msg": "Appointment successfully created!", "appointment": new_appointment.serialize()}), 201
+
+    # Manejar método GET: Devolver todas las citas
+    appointments = Appointment.query.all()
+    return jsonify([appointment.serialize() for appointment in appointments]), 200
+  #  if request.method == 'POST':
+   #     data = request.json
+    #    for appointment in appointments:
+     #       if appointment['date'] == data['date']:
+      #          return jsonify({"Msg": "Time slot is not available!"}), 400
         
-        appointments.append(data)
-        return jsonify({"Msg": "Appointment added!", "appointment": data}), 201
-    return jsonify(appointments), 200
+       # appointments.append(data)
+        #return jsonify({"Msg": "Appointment added!", "appointment": data}), 201
+    #return jsonify(appointments), 200
+
 @api.route('/signup', methods=['POST'])
 def signup_user():
     try:

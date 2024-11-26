@@ -1,12 +1,49 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { Context } from '../store/appContext';
+import { useParams } from 'react-router-dom';
 
 export const Schedule = () => {
-    const [appointments, setAppointments] = useState([]);
+    const { doctorId} = useParams();
+    const [date, setDate] = useState('');
+    const {store, actions} = useContext(Context);
+
+    const addAppointment = async (e) => {
+        e.preventDefault();
+
+        const newAppointment = {
+            patient_id: 1,
+            doctor_id: doctorId,
+            date
+        };
+        const addedAppointment = await actions.addApoint(newAppointment);
+        if (addedAppointment){
+            alert("Appoinment successfully added!");
+            setDate('');
+        } else {
+            alert("Failed to add appoinment. Please try again.");
+        }
+
+        return (
+            <div className="container">
+                <h5>Schedule Appointment</h5>
+                <form onSubmit={addAppointment}>
+                    <input
+                        type="datetime-local"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        required
+                    />
+                    <button type="submit">Add Appointment</button>
+                </form>
+            </div>
+        );
+    }
+    /*const [appointments, setAppointments] = useState([]);
     const { store, actions } = useContext(Context);
     const [name, setName] = useState('');
     const [date, setDate] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    
 
     useEffect(() => {
         fetchAppointments();
@@ -68,5 +105,5 @@ export const Schedule = () => {
                 </div>
             </div>
         </div>
-    );
+    ); */
 };
