@@ -9,12 +9,9 @@ export const DoctorList = () => {
 
 
     useEffect(() => {
-        console.log("store.selectedSpeciality in DoctorList:", store.selectedSpeciality);
-
         if (store.selectedSpeciality) {
             actions.getDoctorBySpeciality(store.selectedSpeciality);
         } else {
-            console.log("store.doctors en DoctorList:", store.doctors);
             actions.getDoctorBySpeciality();
         }
     }, [store.selectedSpeciality]);

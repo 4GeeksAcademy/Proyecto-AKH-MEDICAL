@@ -6,6 +6,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			specialities: [],
 			allDoctors: [],
 			doctors: [],
+			searchText: [],
 			auth: false,
 			appointments: [],
 			selectedSpeciality: null,
@@ -104,7 +105,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			setSelectedSpeciality: (speciality) => {
-				console.log("Updating selected speciality:", speciality);
 				setStore({ selectedSpeciality: speciality });
 			},
 
@@ -134,24 +134,20 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 			getAllDoctors: async () => {
-				const store = getStore();
-				console.log("Llamando a getAllDoctors");
-				if (store.allDoctors.length > 0) {
-					console.log("Evita llamada innecesaria: ya hay doctores en el estado")
-					return;
-				}
 				try {
-					const response = await fetch(process.env.BACKEND_URL + "/api/doctors")
+					const response = await fetch(process.env.BACKEND_URL + "/api/doctors");
+
 					if (!response.ok) {
-						throw new Error("Failed to get all doctors");
+						throw new Error("Error al obtener doctores");
 					}
-					const data = await response.json()
-					setStore({ allDoctors: data });
+
+					const data = await response.json();
+
+					setStore({ allDoctors: data, doctors: data });
 					return data;
 				} catch (error) {
-					console.log("Error fetching all doctors", error)
+					console.error("Error en getAllDoctors:", error);
 				}
-
 			},
 
 			getDoctorBySpeciality: async (speciality) => {
@@ -171,6 +167,19 @@ const getState = ({ getStore, getActions, setStore }) => {
 				} catch (error) {
 					console.log("Error fetching doctors", error);
 				}
+			},
+
+			searchDoctors: (searchText) => {
+				const store = getStore();
+				const filteredDoctors = store.allDoctors.filter(doctor => {
+					const fullName = `${doctor.info.first_name} ${doctor.info.last_name}`.toLowerCase();
+					return fullName.includes(searchText.toLowerCase());
+				});
+
+				setStore({
+					doctors: filteredDoctors,
+					searchText
+				});
 			}
 		}
 	};

@@ -10,24 +10,25 @@ export const Navbar = () => {
 	const [specialities, setSpecialities] = useState([]);
 	const [isDataLoaded, setIsDataLoaded] = useState(false);
 	const [selectedSpeciality, setSelectSpecialitiesId] = useState(null);
-
+	const [searchText, setSearchText] = useState('');
 
 	const handleSpecialitySelectId = (speciality) => {
-		console.log("Especialidad seleccionada:", speciality);
 		if (speciality === selectedSpeciality) {
-			console.log("Deseleccionando especialidad:", speciality);
-			setSelectSpecialitiesId(null); // Desmarca la especialidad
-			actions.setSelectedSpeciality(null); // Actualiza el store
-			actions.getDoctorBySpeciality(null); // Llama a la API para obtener todos los doctores
+			setSelectSpecialitiesId(null);
+			actions.setSelectedSpeciality(null);
+			actions.getDoctorBySpeciality(null);
 		} else {
-			console.log("Seleccionando especialidad:", speciality);
-			setSelectSpecialitiesId(speciality); // Marca la especialidad seleccionada
-			actions.setSelectedSpeciality(speciality); // Actualiza el store
-			actions.getDoctorBySpeciality(speciality); // Llama a la API con la especialidad seleccionada
+			setSelectSpecialitiesId(speciality);
+			actions.setSelectedSpeciality(speciality);
+			actions.getDoctorBySpeciality(speciality);
 		}
 	};
 
-
+	const handleSearch = (e) => {
+		if (e.key === 'Enter' || e.type === 'click') {
+			actions.searchDoctors(searchText)
+		}
+	}
 
 	useEffect(() => {
 		async function gettingSpecialities() {
@@ -41,6 +42,13 @@ export const Navbar = () => {
 		}
 
 		gettingSpecialities();
+	}, []);
+
+	useEffect(() => {
+		async function loadDoctors() {
+			await actions.getAllDoctors();
+		}
+		loadDoctors();
 	}, []);
 
 
@@ -96,8 +104,8 @@ export const Navbar = () => {
 						</div>
 
 						<div className="search-bar d-flex align-items-center ms-auto">
-							<input type="text" placeholder="Doctor's name" className="form-control" />
-							<span className="btn">
+							<input type="text" placeholder="Doctor's name" className="form-control" value={searchText} onChange={(e) => setSearchText(e.target.value)} onKeyUp={(e) => handleSearch(e)} />
+							<span className="btn" onClick={handleSearch}>
 								<i className="fa fa-search me-4"></i>
 							</span>
 						</div>
