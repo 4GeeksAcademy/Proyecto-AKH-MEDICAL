@@ -1,0 +1,88 @@
+/* Estilos para la Interfaz de Crear Historial Médico */
+
+/* Contenedor Principal */
+.medical-history-create-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 40px auto;
+    max-width: 600px;
+}
+
+/* Título Principal */
+.medical-history-create-title {
+    color: #00796b;
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Estilos de los Grupos de Formularios */
+.medical-history-form-group {
+    margin-bottom: 20px;
+}
+
+.medical-history-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #00796b;
+}
+
+.medical-history-form-group input, .medical-history-form-group textarea, .medical-history-form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #00796b;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+    transition: border-color 0.3s;
+}
+
+.medical-history-form-group input:read-only {
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+/* Mensaje de Error */
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: -15px;
+    margin-bottom: 10px;
+}
+
+/* Estilos del Grupo de Botones */
+.medical-history-button-group {
+    display: flex;
+    justify-content: center; /* Centrar los botones */
+    gap: 10px; /* Espacio entre los botones */
+}
+
+.medical-history-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.medical-history-btn-save {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+.medical-history-btn-save:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.medical-history-btn-back {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
+.medical-history-btn-back:hover {
+    background-color: #565e64;
+    transform: translateY(-2px);
+}
