@@ -10,3 +10,8 @@
     margin-right: 10px;
     flex: 0 0 auto;
 }
+
+.doctor-image {
+    height: 100px;
+    object-fit: cover;
+}
