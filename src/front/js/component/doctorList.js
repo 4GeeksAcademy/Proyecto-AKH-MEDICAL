@@ -18,32 +18,35 @@ export const DoctorList = () => {
 
 
     return (
-        <div className="row">
-            {store.doctors && store.doctors.length > 0 ? (
-                store.doctors
-                    .filter((doctor) => {
-                        if (store.selectedSpeciality) {
-                            return doctor.speciality === store.selectedSpeciality;
-                        } else {
-                            return true;
-                        }
-                    })
-                    .filter((doctor) => {
-                        if (searchTerm) {
-                            const searchTermLower = searchTerm.toLowerCase();
-                            return doctor.name.toLowerCase().includes(searchTermLower);
-                        } else {
-                            return true;
-                        }
-                    })
-                    .map((doctor) => (
-                        <div className="col-md-4" key={doctor.id}>
-                            <DoctorCard doctor={doctor} />
-                        </div>
-                    ))
-            ) : (
-                <p>No doctors found</p>
-            )}
+        <div className="container">
+
+            <div className="row g-0 justify-content-center">
+                {store.doctors && store.doctors.length > 0 ? (
+                    store.doctors
+                        .filter((doctor) => {
+                            if (store.selectedSpeciality) {
+                                return doctor.speciality === store.selectedSpeciality;
+                            } else {
+                                return true;
+                            }
+                        })
+                        .filter((doctor) => {
+                            if (searchTerm) {
+                                const searchTermLower = searchTerm.toLowerCase();
+                                return doctor.name.toLowerCase().includes(searchTermLower);
+                            } else {
+                                return true;
+                            }
+                        })
+                        .map((doctor) => (
+                            <div className="col-md-6 col-12 mb-3 p-0" key={doctor.id}>
+                                <DoctorCard doctor={doctor} />
+                            </div>
+                        ))
+                ) : (
+                    <p>No doctors found</p>
+                )}
+            </div>
         </div>
     );
 }
