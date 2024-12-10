@@ -112,8 +112,8 @@ export const Navbar = () => {
                         </div>
 
                         <div>
-                                <button className="btn btn-dark card-buttons" onClick={handleMedicalHistoryClick}>Medical History</button>
-                            </div>
+                            <button className="btn btn-dark card-buttons" onClick={handleMedicalHistoryClick}>Medical History</button>
+                        </div>
 
                         <div className="search-bar d-flex align-items-center ms-auto">
                             <input type="text" placeholder="Doctor's name" className="form-control" value={searchText} onChange={(e) => setSearchText(e.target.value)} onKeyUp={(e) => handleSearch(e)} />

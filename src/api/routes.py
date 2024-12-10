@@ -174,7 +174,8 @@ def get_especialities():
     return jsonify(specialities_list), 200
 
 
-#//------------------------MEDICAL HISTORY---------------------//
+#------------------------MEDICAL HISTORY---------------------//
+
 # Endpoint para crear un historial médico
 @api.route('/medical-history', methods=['POST'])
 @jwt_required()
@@ -206,6 +207,25 @@ def create_medical_history():
     db.session.commit()
     return jsonify(medical_history.serialize()), 201
 
+# Endpoint para obtener doctores según la especialidad
+@api.route('/medical-history/doctors-by-speciality', methods=['GET'])
+def get_doctors_by_speciality():
+    speciality = request.args.get('speciality')
+    if speciality:
+        doctors = Doctor.query.filter_by(speciality=speciality).all()
+    else:
+        return jsonify({"Msg": "Speciality parameter is required"}), 400
+
+    results = [doctor.serialize() for doctor in doctors]
+    return jsonify(results), 200
+
+# Endpoint para obtener todos los pacientes
+@api.route('/patients', methods=['GET'])
+@jwt_required()
+def get_all_patients():
+    patients = User.query.filter_by(role=RoleEnum.PATIENT).all()
+    return jsonify([patient.serialize() for patient in patients]), 200
+
 # Endpoint para obtener historiales médicos de un paciente
 @api.route('/medical-history/patient', methods=['GET'])
 @jwt_required()
@@ -232,18 +252,6 @@ def get_doctor_medical_history():
     medical_histories = MedicalHistory.query.filter_by(doctor_id=doctor.id).all()
     return jsonify([history.serialize() for history in medical_histories]), 200
 
-# Endpoint para obtener doctores según la especialidad
-@api.route('/medical-history/doctors-by-speciality', methods=['GET'])
-def get_doctors_by_speciality():
-    speciality = request.args.get('speciality')
-    if speciality:
-        doctors = Doctor.query.filter_by(speciality=speciality).all()
-    else:
-        return jsonify({"Msg": "Speciality parameter is required"}), 400
-
-    results = [doctor.serialize() for doctor in doctors]
-    return jsonify(results), 200
-
 # Endpoint para verificar si el correo del paciente existe
 @api.route('/check-patient-email', methods=['POST'])
 @jwt_required()
@@ -265,5 +273,22 @@ def check_patient_email():
 
     print("Patient exists")  # Log para verificar si el paciente existe
     return jsonify({"Msg": "Patient exists"}), 200
+
+# Endpoint para obtener los correos electrónicos de los pacientes con historiales médicos creados por el doctor
+@api.route('/medical-history/doctor/patients', methods=['GET'])
+@jwt_required()
+def get_patients_with_histories():
+    user_id = get_jwt_identity()
+    doctor = Doctor.query.filter_by(user_id=user_id).first()
+
+    if not doctor:
+        return jsonify({"Msg": "Access forbidden"}), 403
+
+    patients = db.session.query(User).join(MedicalHistory, User.id == MedicalHistory.patient_id)\
+                                     .filter(MedicalHistory.doctor_id == doctor.id).all()
+
+    return jsonify([patient.serialize() for patient in patients]), 200
+
+
 
 

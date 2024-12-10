@@ -1,0 +1,67 @@
+.doctor-patient-histories-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 40px auto;
+    max-width: 600px;
+}
+
+.doctor-patient-histories-title {
+    color: #00796b;
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.patients-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.patient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #00796b;
+}
+
+.view-button {
+    background-color: #00796b;
+    color: #ffffff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.view-button:hover {
+    background-color: #004d40;
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.back-button {
+    background-color: #00796b;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto 0;
+}
+
+.back-button:hover {
+    background-color: #004d40;
+}

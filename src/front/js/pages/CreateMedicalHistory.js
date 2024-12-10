@@ -12,6 +12,7 @@ const CreateMedicalHistory = () => {
     const [observation, setObservation] = useState("");
     const [specialities, setSpecialities] = useState([]);
     const [doctors, setDoctors] = useState([]);
+    const [patients, setPatients] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
@@ -70,28 +71,34 @@ const CreateMedicalHistory = () => {
         }
     }, [speciality, store.token]);
 
+    useEffect(() => {
+        // Obtener la lista de pacientes independientemente del doctor y especialidad
+        const fetchPatients = async () => {
+            try {
+                const response = await fetch(`${process.env.BACKEND_URL}/api/patients`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${store.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setPatients(data);
+                } else {
+                    console.error("Error fetching patients");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        };
+
+        fetchPatients();
+    }, [store.token]);
+
     const handleSave = async (e) => {
         e.preventDefault();
-
-        // Verificar y mostrar el JSON antes de enviarlo
-        const emailData = { email: patientEmail };
-        console.log("Sending email data:", emailData);
-
-        // Verificar si el correo del paciente existe
-        const patientResponse = await fetch(`${process.env.BACKEND_URL}/api/check-patient-email`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${store.token}`
-            },
-            body: JSON.stringify(emailData)
-        });
-
-        if (!patientResponse.ok) {
-            const errorData = await patientResponse.json();
-            setErrorMessage("El email no coincide con ningún usuario creado.");
-            return;
-        }
 
         // Datos del formulario
         const medicalHistory = {
@@ -156,12 +163,18 @@ const CreateMedicalHistory = () => {
                 </div>
                 <div className="medical-history-form-group">
                     <label>Patient Email</label>
-                    <input
-                        type="email"
+                    <select
                         value={patientEmail}
                         onChange={(e) => setPatientEmail(e.target.value)}
                         required
-                    />
+                    >
+                        <option value="" disabled>Select a patient</option>
+                        {patients.map((patient) => (
+                            <option key={patient.id} value={patient.email}>
+                                {patient.email}
+                            </option>
+                        ))}
+                    </select>
                 </div>
                 {errorMessage && <p className="error-message">{errorMessage}</p>}
                 <div className="medical-history-form-group">

@@ -10,7 +10,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             appointments: [],
             selectedSpeciality: null,
             user: null,
-            token: null,
+            token: localStorage.getItem("token")
         },
         actions: {
             fetchSchedule: async () => {
@@ -189,12 +189,12 @@ const getState = ({ getStore, getActions, setStore }) => {
                         },
                         body: JSON.stringify(medicalHistory)
                     });
-
+            
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.Msg || "Error al crear el historial médico");
                     }
-
+            
                     const data = await response.json();
                     return data;
                 } catch (error) {
@@ -202,6 +202,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     throw error;
                 }
             }
+            
         }
     };
 };
