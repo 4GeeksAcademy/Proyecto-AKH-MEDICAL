@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from enum import Enum
-
+from flask_admin.contrib.sqla import ModelView
 
 db = SQLAlchemy()
     
@@ -29,6 +29,7 @@ class User(db.Model):
     testimonials = db.relationship("Testimonial", back_populates="patient", lazy=True)
 
     doctors=db.relationship("Doctor", back_populates="user", lazy=True)
+    medical_histories = db.relationship("MedicalHistory", back_populates="patient", lazy=True)
 
     def __repr__(self):
         return f'<User {self.id}, {self.email}>'
@@ -59,6 +60,7 @@ class Doctor(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False) 
     user= db.relationship(User)
     appointments = db.relationship("Appointment", back_populates="doctor", lazy=True)
+    medical_histories = db.relationship("MedicalHistory", back_populates="doctor", lazy=True)
 
     def __repr__(self): 
         return f'<Doctor {self.id}>'
@@ -137,3 +139,32 @@ class TokenBlockedList(db.Model):
             "id": self.id,
             "jti": self.jti,
         }
+    
+#------------------------MEDICAL HISTORY---------------------//
+class MedicalHistory(db.Model):
+    __tablename__ = 'medical_histories'
+
+    id = db.Column(db.Integer, primary_key=True)
+    doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"), nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    observation = db.Column(db.String(1000), nullable=True)
+
+    doctor = db.relationship(Doctor, back_populates="medical_histories")
+    patient = db.relationship(User, back_populates="medical_histories")
+
+    def __repr__(self):
+        return f'<MedicalHistory {self.id}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "doctor": self.doctor.serialize() if self.doctor else None,
+            "patient": self.patient.serialize() if self.patient else None,
+            "created_at": self.created_at,
+            "observation": self.observation
+        }
+
+class MedicalHistoryView(ModelView): 
+    column_list = ('id', 'doctor_id', 'patient_id', 'created_at', 'observation') 
+    form_columns = ('doctor_id', 'patient_id', 'observation')
