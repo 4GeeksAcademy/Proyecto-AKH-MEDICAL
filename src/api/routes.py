@@ -2,7 +2,7 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint, current_app
-from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Testimonial, TestimonialCount
+from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Testimonial, TestimonialCount, Appointment
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -135,7 +135,7 @@ def get_doctors():
     results=list(map(lambda item:item.serialize(), doctors))
     return jsonify (results), 200
 
-@api.route('/doctors/<int:doctor_id>')
+@api.route('/doctors/<int:doctor_id>', methods=['GET'])
 def get_doctor(doctor_id):
     doctor = Doctor.query.get(doctor_id)
     if doctor:

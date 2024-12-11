@@ -46,14 +46,13 @@ const Testimonials = () => {
                     ))}
                     <div>
                         {store.user &&
-                            <button onClick={createTestimony} className="mt-4 btn btn-outline-success col-sm-2 border-3">
+                            <button onClick={createTestimony} className="mt-4 btn btn-outline-light col-sm-2 border-3" style={{ borderColor: "gray" }}>
                                 <b style={{ color: "#6BB3F2" }}>CREATE TESTIMONY</b>
                             </button>
                         }
                     </div>
                 </div>
             </div>
-
         </div>
     );
 };
