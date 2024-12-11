@@ -1,0 +1,72 @@
+/* styles/CreateMedicalHistory.css */
+
+.medical-history-create-container {
+    background-color: #f4f4f9;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.medical-history-create-title {
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.medical-history-form-group {
+    margin-bottom: 15px;
+}
+
+.medical-history-form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.medical-history-form-group select,
+.medical-history-form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.medical-history-form-group textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+.medical-history-button-group {
+    display: flex;
+    justify-content: space-between;
+}
+
+.medical-history-btn {
+    background-color: #00796b;
+    color: #ffffff;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.medical-history-btn:hover {
+    background-color: #005f56;
+    transform: translateY(-3px);
+}
+
+.medical-history-btn-back {
+    background-color: #777777;
+}
+
+.medical-history-btn-back:hover {
+    background-color: #525252;
+}

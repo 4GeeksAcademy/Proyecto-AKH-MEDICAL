@@ -1,3 +1,4 @@
+// Layout.js
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./component/scrollToTop";
@@ -18,15 +19,13 @@ import StartHome from "./component/StartHome";
 import { Home } from "./pages/Home";
 import CreateTestimony from "./pages/CreateTestimony";
 import Testimonials from "./component/Testimonials";
+import MedicalHistory from "./pages/MedicalHistory";
+import CreateMedicalHistory from "./pages/CreateMedicalHistory";
 
-
-//create your first component
 const Layout = () => {
-    //the basename is used when your project is published in a subdirectory and not in the root of the domain
-    // you can set the basename on the .env file located at the root of this project, E.g: BASENAME=/react-hello-webapp/
     const basename = process.env.BASENAME || "";
 
-    if (!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL />;
+    if (!process.env.BACKEND_URL || process.env.BACKEND_URL === "") return <BackendURL />;
 
     return (
         <div>
@@ -39,10 +38,12 @@ const Layout = () => {
                         <Route element={<Schedule />} path="/appointment" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theid" />
-                        <Route element={<h1>Not found!</h1>} />
+                        <Route element={<h1>Not found!</h1>} path="*" />
                         <Route element={<SingleLogin />} path="/login" />
                         <Route element={<SingleSignup />} path="/signup" />
                         <Route element={<CreateTestimony />} path="/testimonials" />
+                        <Route element={<MedicalHistory />} path="/medical-history" />
+                        <Route element={<CreateMedicalHistory />} path="/create-medical-history" />
                         <Route element={<Home />} path="/" />
                     </Routes>
                     {/* <Footer /> */}

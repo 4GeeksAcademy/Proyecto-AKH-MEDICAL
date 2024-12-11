@@ -232,118 +232,131 @@ def create_testimonial():
     # except Exception as e:
     #     return jsonify({"Error": "Unexpected error"}), 500
 
-
-#------------------------MEDICAL HISTORY---------------------//
-
 # Endpoint para crear un historial médico
 @api.route('/medical-history', methods=['POST'])
 @jwt_required()
 def create_medical_history():
-    data = request.get_json()
-    user_id = get_jwt_identity()
+    try:
+        data = request.get_json()
+        user_id = get_jwt_identity()
 
-    # Verifica que el usuario logueado es un doctor
-    doctor = Doctor.query.filter_by(user_id=user_id).first()
-    if not doctor:
-        return jsonify({"Msg": "Only doctors can create medical histories"}), 403
+        # Validación de campos requeridos
+        if 'user_email' not in data or 'doctor_email' not in data or 'observation' not in data:
+            return jsonify({"error": "Missing required fields"}), 400
 
-    # Verifica que el email del paciente exista y sea un paciente
-    patient_email = data.get('patient_email')
-    patient = User.query.filter_by(email=patient_email).first()
-    if not patient or patient.role != RoleEnum.PATIENT:
-        return jsonify({"Msg": "Patient not found or not a patient"}), 404
+        # Verifica que el usuario logueado es un doctor
+        doctor = Doctor.query.filter_by(user_id=user_id).first()
+        if not doctor:
+            return jsonify({"Msg": "Only doctors can create medical histories"}), 403
 
-    observation = data.get('observation')
+        # Verifica que el email del usuario exista
+        user_email = data['user_email']
+        user = User.query.filter_by(email=user_email).first()
+        if not user:
+            return jsonify({"Msg": "User not found"}), 404
 
-    # Crea un nuevo historial médico
-    medical_history = MedicalHistory(
-        doctor_id=doctor.id,
-        patient_id=patient.id,
-        observation=observation
-    )
+        # Verifica que el email del doctor exista
+        doctor_email = data['doctor_email']
+        doctor = User.query.filter_by(email=doctor_email).first()
+        if not doctor or doctor.role != RoleEnum.DOCTOR:
+            return jsonify({"Msg": "Doctor not found"}), 404
 
-    db.session.add(medical_history)
-    db.session.commit()
-    return jsonify(medical_history.serialize()), 201
+        observation = data['observation']
+
+        # Crea un nuevo historial médico
+        medical_history = MedicalHistory(
+            doctor_id=doctor.id,
+            patient_id=user.id,
+            observation=observation
+        )
+
+        db.session.add(medical_history)
+        db.session.commit()
+        return jsonify(medical_history.serialize()), 201
+
+    except Exception as e:
+        print(f"Error creating medical history: {e}")
+        return jsonify({"error": "Failed to create medical history"}), 500
 
 # Endpoint para obtener doctores según la especialidad
 @api.route('/medical-history/doctors-by-speciality', methods=['GET'])
 def get_doctors_by_speciality():
-    speciality = request.args.get('speciality')
-    if speciality:
+    try:
+        speciality = request.args.get('speciality')
+        if not speciality:
+            return jsonify({"Msg": "Speciality parameter is required"}), 400
+
         doctors = Doctor.query.filter_by(speciality=speciality).all()
-    else:
-        return jsonify({"Msg": "Speciality parameter is required"}), 400
+        results = [doctor.serialize() for doctor in doctors]
+        return jsonify(results), 200
 
-    results = [doctor.serialize() for doctor in doctors]
-    return jsonify(results), 200
+    except Exception as e:
+        print(f"Error fetching doctors by speciality: {e}")
+        return jsonify({"error": "Failed to fetch doctors by speciality"}), 500
 
-# Endpoint para obtener todos los pacientes
-@api.route('/patients', methods=['GET'])
+# Endpoint para obtener todos los usuarios (doctores y pacientes)
+@api.route('/users', methods=['GET'])
 @jwt_required()
-def get_all_patients():
-    patients = User.query.filter_by(role=RoleEnum.PATIENT).all()
-    return jsonify([patient.serialize() for patient in patients]), 200
+def get_all_users():
+    try:
+        users = User.query.all()  # No filtra por el rol
+        return jsonify([user.serialize() for user in users]), 200
+    except Exception as e:
+        print(f"Error fetching users: {e}")
+        return jsonify({"error": "Failed to fetch users"}), 500
 
-# Endpoint para obtener historiales médicos de un paciente
-@api.route('/medical-history/patient', methods=['GET'])
+# Endpoint para obtener historiales médicos de un usuario autenticado
+@api.route('/medical-history/user', methods=['GET'])
 @jwt_required()
-def get_patient_medical_history():
-    user_id = get_jwt_identity()
-    patient = User.query.get(user_id)
+def get_user_medical_history():
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
 
-    if not patient or patient.role != RoleEnum.PATIENT:
-        return jsonify({"Msg": "Access forbidden"}), 403
+        if not user:
+            return jsonify({"Msg": "User not found"}), 404
 
-    medical_histories = MedicalHistory.query.filter_by(patient_id=user_id).all()
-    return jsonify([history.serialize() for history in medical_histories]), 200
+        medical_histories = MedicalHistory.query.filter_by(patient_id=user_id).all()
+        return jsonify([history.serialize() for history in medical_histories]), 200
+
+    except Exception as e:
+        print(f"Error fetching medical histories for user: {e}")
+        return jsonify({"error": "Failed to fetch medical histories for user"}), 500
 
 # Endpoint para obtener historiales médicos de un doctor
 @api.route('/medical-history/doctor', methods=['GET'])
 @jwt_required()
 def get_doctor_medical_history():
-    user_id = get_jwt_identity()
-    doctor = Doctor.query.filter_by(user_id=user_id).first()
+    try:
+        user_id = get_jwt_identity()
+        doctor = Doctor.query.filter_by(user_id=user_id).first()
 
-    if not doctor:
-        return jsonify({"Msg": "Access forbidden"}), 403
+        if not doctor:
+            return jsonify({"Msg": "Access forbidden"}), 403
 
-    medical_histories = MedicalHistory.query.filter_by(doctor_id=doctor.id).all()
-    return jsonify([history.serialize() for history in medical_histories]), 200
+        medical_histories = MedicalHistory.query.filter_by(doctor_id=doctor.id).all()
+        return jsonify([history.serialize() for history in medical_histories]), 200
 
-# Endpoint para verificar si el correo del paciente existe
-@api.route('/check-patient-email', methods=['POST'])
+    except Exception as e:
+        print(f"Error fetching medical histories for doctor: {e}")
+        return jsonify({"error": "Failed to fetch medical histories for doctor"}), 500
+
+# Endpoint para obtener los correos electrónicos de los usuarios con historiales médicos creados por el doctor
+@api.route('/medical-history/doctor/users', methods=['GET'])
 @jwt_required()
-def check_patient_email():
-    data = request.get_json()
-    patient_email = data.get('email')
-    print(f"Received email: {patient_email}")  # Log para verificar el correo recibido
-    print(f"Received data: {data}")  # Log para verificar el JSON completo recibido
+def get_users_with_histories():
+    try:
+        user_id = get_jwt_identity()
+        doctor = Doctor.query.filter_by(user_id=user_id).first()
 
-    patient = User.query.filter_by(email=patient_email).first()
+        if not doctor:
+            return jsonify({"Msg": "Access forbidden"}), 403
 
-    if not patient:
-        print("Patient not found")  # Log para verificar si el paciente no se encuentra
-        return jsonify({"Msg": "Patient not found"}), 404
+        users = db.session.query(User).join(MedicalHistory, User.id == MedicalHistory.patient_id)\
+                                     .filter(MedicalHistory.doctor_id == doctor.id).distinct().all()
 
-    if patient.role != RoleEnum.PATIENT:
-        print(f"User found but not a patient: {patient.role}")  # Log para verificar el rol del usuario
-        return jsonify({"Msg": "User found but not a patient"}), 404
+        return jsonify([user.serialize() for user in users]), 200
 
-    print("Patient exists")  # Log para verificar si el paciente existe
-    return jsonify({"Msg": "Patient exists"}), 200
-
-# Endpoint para obtener los correos electrónicos de los pacientes con historiales médicos creados por el doctor
-@api.route('/medical-history/doctor/patients', methods=['GET'])
-@jwt_required()
-def get_patients_with_histories():
-    user_id = get_jwt_identity()
-    doctor = Doctor.query.filter_by(user_id=user_id).first()
-
-    if not doctor:
-        return jsonify({"Msg": "Access forbidden"}), 403
-
-    patients = db.session.query(User).join(MedicalHistory, User.id == MedicalHistory.patient_id)\
-                                     .filter(MedicalHistory.doctor_id == doctor.id).all()
-
-    return jsonify([patient.serialize() for patient in patients]), 200
+    except Exception as e:
+        print(f"Error fetching users with histories: {e}")
+        return jsonify({"error": "Failed to fetch users with histories"}), 500
