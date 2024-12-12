@@ -61,16 +61,16 @@ export const Navbar = () => {
 						<img className="ps-5" src={logoImgUrl} style={{ height: "100px" }} />
 					</Link>
 					<div className="d-flex ms-auto">
-						{store.auth === false ? (
+						{store.user === false || store.user==null? (
 							<div>
 								<Link to="/login">
 									<button className="btn btn-outline-success mx-3">Login</button>
 								</Link>
 								<Link to="/signup">
-									<button className="btn btn-outline-success me-5">Sign_up</button>
+									<button className="btn btn-outline-success me-5">SignUp</button>
 								</Link>
 							</div>
-						) : null}
+						) : <button className="btn btn-outline-danger mx-3" onClick={()=>actions.logOut()}>LogOut</button>}
 					</div>
 
 					<div className="container-fluid d-flex align-items-center justify-content-between p-2 background">

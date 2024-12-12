@@ -22,8 +22,12 @@ class User(db.Model):
     city = db.Column(db.String(80), nullable=False)
     age = db.Column(db.String(80), nullable=False)
     role = db.Column(db.Enum(RoleEnum), nullable=False)
+    img_url = db.Column(db.String(250))
+
 
     appointments = db.relationship("Appointment", back_populates="patient", lazy=True)
+    testimonials = db.relationship("Testimonial", back_populates="patient", lazy=True)
+
     doctors=db.relationship("Doctor", back_populates="user", lazy=True)
 
     def __repr__(self):
@@ -88,7 +92,37 @@ class Appointment(db.Model):
             "patient": self.patient.serialize() if self.patient else None, 
             "doctor": self.doctor.serialize() if self.doctor else None
         }
-    
+
+class TestimonialCount(Enum):
+    ONE = 1
+    TWO = 2
+    THREE = 3
+    FOUR = 4
+    FIVE = 5
+
+class Testimonial(db.Model):
+    __tablename__="testimonials"
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(db.Integer, db.ForeignKey("users.id")) 
+    content = db.Column(db.String(256), nullable=False)
+    count = db.Column(db.Enum(TestimonialCount))
+
+
+    patient = db.relationship(User)
+
+
+    def __repr__(self):
+        return f'<Testimonial {self.id}>'
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "patient": {"first_name": self.patient.first_name, "last_name": self.patient.last_name, "img_url": self.patient.img_url},
+            "content": self.content, 
+            "count": self.count.value if self.count else None
+        }
+
 class TokenBlockedList(db.Model):
     __tablename__ = 'token_blocked_list'  
     

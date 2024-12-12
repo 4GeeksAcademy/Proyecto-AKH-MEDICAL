@@ -2,13 +2,14 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 from flask import Flask, request, jsonify, url_for, Blueprint, current_app
-from api.models import db, User, Doctor, RoleEnum, TokenBlockedList
+from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Testimonial, TestimonialCount, Appointment
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_jwt_extended import jwt_required
+import json 
 api = Blueprint('api', __name__)
 CORS(api)
 appointments = []
@@ -134,7 +135,7 @@ def get_doctors():
     results=list(map(lambda item:item.serialize(), doctors))
     return jsonify (results), 200
 
-@api.route('/doctors/<int:doctor_id>')
+@api.route('/doctors/<int:doctor_id>', methods=['GET'])
 def get_doctor(doctor_id):
     doctor = Doctor.query.get(doctor_id)
     if doctor:
@@ -154,7 +155,8 @@ def login():
     valid_password=  check_password_hash(user.password, password)
     if not valid_password:
         return jsonify({"Msg": "Invalid email or password"}), 400
-    access_token=create_access_token(identity={"id": user.id, "role": user.role.value})
+    token_data=json.dumps({"id": user.id, "role": user.role.value})
+    access_token=create_access_token(identity=token_data)
     result={}
     result["access_token"]=access_token
     if user.role.value == RoleEnum.DOCTOR.value:
@@ -166,21 +168,67 @@ def login():
     result["user"]=user.serialize()
     return jsonify(result), 200
 
-@api.route("/protected", methods=["GET"])
+@api.route("/logout", methods=["POST"])
 @jwt_required()
 def user_logout():
     try:
-        token_data=get_jwt_identity()
+        token_data=get_jwt()
         token_blocked=TokenBlockedList(jti=token_data["jti"])
         db.session.add(token_blocked)
         db.session.commit()
         return jsonify({"Msg":"Closed session"}), 200
     except Exception as e:
         return jsonify({"Msg": "Logout error", "Error": str(e)}), 500
+    
+@api.route("/current_user", methods=["GET"])
+@jwt_required()
+def get_current_user():
+    try:
+        token_data=get_jwt_identity()
+        user=json.loads(token_data)
+        print(user)
+        exist_user=User.query.get(user["id"])
+        if not exist_user:
+            return jsonify({"Msg": "User not found"}), 404
+        return jsonify(exist_user.serialize()), 200
+    except Exception as e:
+        return jsonify({"Msg": "cannot get current user", "Error": str(e)}), 500
 
-# Devuelve una lista de todas las especialidades
+
 @api.route('/specialities', methods=['GET'])
 def get_especialities():
     specialities = db.session.query(Doctor.speciality).distinct().all()
     specialities_list = [speciality[0] for speciality in specialities]
     return jsonify(specialities_list), 200
+
+@api.route('/testimonials', methods=['GET'])
+def get_testimonials():
+    testimonials=Testimonial.query.all()
+    if testimonials==[]:
+        return jsonify({"Msg": "There aren't testimonials"}), 400
+    results=list(map(lambda item:item.serialize(), testimonials))
+    return jsonify (results), 200
+
+@api.route('/testimonial', methods=['POST'])
+@jwt_required()
+def create_testimonial():
+    # try:
+        body = request.get_json()
+        token_data=get_jwt_identity()
+        user=json.loads(token_data)
+        print(user)
+        exist_user=User.query.get(user["id"])
+        if not exist_user:
+            return jsonify({"Msg": "User not found"}), 404
+        new_testimonial=Testimonial(
+            patient_id=user["id"],
+            content= body["content"],
+            count= TestimonialCount(int(body["count"])) if  "count" in body else None
+        )
+        db.session.add(new_testimonial)
+        db.session.commit()
+
+        return jsonify(new_testimonial.serialize()), 201
+    # except Exception as e:
+    #     return jsonify({"Error": "Unexpected error"}), 500
+

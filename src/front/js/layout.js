@@ -16,6 +16,8 @@ import { SingleLogin } from "./pages/Auth/singleLogin";
 import SingleSignup from "./pages/Auth/singleSignup";
 import StartHome from "./component/StartHome";
 import { Home } from "./pages/Home";
+import CreateTestimony from "./pages/CreateTestimony";
+import Testimonials from "./component/Testimonials";
 
 
 //create your first component
@@ -40,6 +42,7 @@ const Layout = () => {
                         <Route element={<h1>Not found!</h1>} />
                         <Route element={<SingleLogin />} path="/login" />
                         <Route element={<SingleSignup />} path="/signup" />
+                        <Route element={<CreateTestimony />} path="/testimonials" />
                         <Route element={<Home />} path="/" />
                     </Routes>
                     {/* <Footer /> */}
