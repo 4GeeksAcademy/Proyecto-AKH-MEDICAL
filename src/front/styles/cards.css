@@ -1,17 +1,170 @@
-.card-buttons {
-    border-radius: 100px;
-    padding: 8px 16px; 
-    background-color: #80CBC4; 
-    display: inline-flex; 
-    align-items: center;
-    justify-content: center;
-    border: transparent;
-    color: black;
-    margin-right: 10px;
-    flex: 0 0 auto;
+/* Estilos generales */
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    margin: 0;
+    padding: 0;
 }
 
-.doctor-image {
-    height: 100px;
-    object-fit: cover;
+.container {
+    margin-top: 20px;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo del formulario */
+form {
+    margin-bottom: 20px;
+}
+
+#specialitySelect {
+    border: 2px solid #4682B4;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 16px;
+    color: #333;
+    background: #f9f9f9;
+    box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#specialitySelect:hover, 
+#specialitySelect:focus {
+    border-color: #28527a;
+    outline: none;
+    background: #ffffff;
+}
+
+input[type="text"] {
+    border: 2px solid #4682B4;
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
+    font-size: 16px;
+    color: #333;
+    background: #f9f9f9;
+    box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"]::placeholder {
+    color: #aaa;
+}
+
+input[type="text"]:hover, 
+input[type="text"]:focus {
+    border-color: #28527a;
+    outline: none;
+    background: #ffffff;
+}
+
+/* Estilo de las tarjetas */
+.row {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.col-md-6 {
+    flex: 1 1 calc(50% - 20px);
+    max-width: calc(50% - 20px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.col-12 {
+    flex: 1 1 100%;
+    max-width: 100%;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Texto y mensajes de error */
+.text-center {
+    font-family: 'Roboto', Arial, sans-serif;
+    color: #6c757d;
+}
+
+.text-center h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.text-center p {
+    font-size: 18px;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.fa-user-doctor {
+    color: #4682B4;
+    margin-bottom: 15px;
+}
+
+/* Botones dentro de las tarjetas */
+.card-buttons {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    transition: background 0.3s ease, transform 0.2s ease;
+    background-color: #343a40; /* Fondo oscuro para los botones */
+}
+
+.card-buttons:hover {
+    background: #28527a;
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-buttons:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Contenedor de los botones */
+.card-body {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.button-strip {
+    background-color: #f8f9fa; /* Fondo claro para la cinta */
+    border-radius: 10px;
+    padding: 8px 16px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+
+.card-buttons:hover {
+    background-color: #495057;
+}
+
+/* Elimina bordes del contenedor de la cinta */
+.button-strip a {
+    text-decoration: none;
 }
