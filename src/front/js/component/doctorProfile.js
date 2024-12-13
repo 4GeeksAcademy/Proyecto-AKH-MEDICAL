@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
-import { useParams, useNavigate } from "react-router-dom"; // Importamos useNavigate
+import { useParams, useNavigate } from "react-router-dom"; 
 import { Link } from "react-router-dom";
 import RigoImgUrl from "../../img/rigo-baby.jpg";
 import "../../styles/doctorProfile.css";
@@ -8,7 +8,7 @@ import "../../styles/doctorProfile.css";
 export const DoctorProfile = () => {
     const { id } = useParams();
     const { store, actions } = useContext(Context);
-    const navigate = useNavigate(); // Usamos useNavigate para manejar la navegación
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         actions.getDoctorById(id)
@@ -22,7 +22,6 @@ export const DoctorProfile = () => {
 
     return (
         <div className="doctor-profile-container">
-            {/* Botón Regresar fuera de la tarjeta */}
             <button className="btn btn-secondary back-btn" onClick={() => navigate(-1)}>
                 <i className="fas fa-arrow-left me-2"></i> Regresar
             </button>

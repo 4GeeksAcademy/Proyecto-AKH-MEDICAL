@@ -1,4 +1,3 @@
-/* Contenedor principal */
 .doctor-profile-container {
     display: flex;
     justify-content: center;
@@ -7,7 +6,6 @@
     padding: 0 20px;
 }
 
-/* Contenedor de la tarjeta */
 .doctor-profile-card {
     display: flex;
     flex-direction: row;
@@ -20,7 +18,6 @@
     padding: 20px;
 }
 
-/* Contenedor de la imagen */
 .doctor-image-container {
     flex: 1;
     display: flex;
@@ -28,7 +25,6 @@
     align-items: center;
 }
 
-/* Estilo para la imagen */
 .doctor-image {
     border-radius: 50%;
     width: 150px;
@@ -36,7 +32,6 @@
     object-fit: cover;
 }
 
-/* Contenedor de la información del doctor */
 .doctor-info {
     flex: 2;
     padding-left: 20px;
@@ -45,7 +40,6 @@
     justify-content: center;
 }
 
-/* Nombre del doctor */
 .doctor-name {
     font-size: 28px;
     font-weight: 600;
@@ -53,14 +47,12 @@
     color: #333;
 }
 
-/* Especialidad y otros detalles */
 .doctor-specialty, .doctor-age, .doctor-description {
     font-size: 16px;
     margin-bottom: 8px;
     color: #555;
 }
 
-/* Botón de agendar cita */
 .schedule-btn {
     background-color: #007bff;
     color: white;
@@ -80,16 +72,15 @@
     outline: none;
 }
 
-/* Estilo del botón Regresar */
 .back-btn {
-    background-color: #6c757d; /* Gris oscuro */
+    background-color: #6c757d; 
     color: white;
     border: none;
     padding: 10px 20px;
     font-size: 16px;
     font-weight: 600;
     border-radius: 5px;
-    margin: 20px 0; /* Agregamos margen superior e inferior */
+    margin: 20px 0; 
     transition: background-color 0.3s ease;
     display: inline-flex;
     align-items: center;
@@ -97,7 +88,7 @@
 }
 
 .back-btn:hover {
-    background-color: #5a6268; /* Gris más oscuro */
+    background-color: #5a6268; 
 }
 
 .back-btn:focus {
@@ -116,8 +107,8 @@
     transition: background-color 0.3s ease, transform 0.3s ease;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     display: inline-flex;
-    align-items: center; /* Alinea el texto e icono verticalmente */
-    gap: 8px; /* Espacio entre el icono y el texto */
+    align-items: center; 
+    gap: 8px;
 }
 
 .schedule-btn:hover {
@@ -127,5 +118,5 @@
 }
 
 .schedule-btn i {
-    font-size: 18px; /* Tamaño del icono */
+    font-size: 18px; 
 }

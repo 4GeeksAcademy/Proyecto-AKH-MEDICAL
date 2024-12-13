@@ -11,14 +11,13 @@ export const DoctorList = () => {
     const [selectedSpeciality, setSelectedSpeciality] = useState('');
     const [filteredDoctors, setFilteredDoctors] = useState(store.doctors);
 
-    // Este useEffect se encarga de cargar los doctores filtrados por especialidad al cambiar store.selectedSpeciality
     useEffect(() => {
         console.log("selectedSpeciality changed:", selectedSpeciality);
 
         if (selectedSpeciality) {
-            actions.getDoctorBySpeciality(selectedSpeciality); // Llama a la acción que trae los doctores por especialidad
+            actions.getDoctorBySpeciality(selectedSpeciality); 
         } else {
-            actions.getDoctorBySpeciality(); // Llama a la acción para obtener todos los doctores
+            actions.getDoctorBySpeciality(); 
         }
     }, []);
 
@@ -40,17 +39,16 @@ export const DoctorList = () => {
     const handleSearch = (e) => {
         const text = e.target.value;
         console.log("Search text changed:", text);
-        setSearchText(text); // Actualiza el texto de búsqueda
+        setSearchText(text); 
     };
 
     // Función para manejar el cambio de especialidad
     const handleSpecialityChange = (e) => {
         const speciality = e.target.value;
         console.log("Speciality changed:", speciality);
-        setSelectedSpeciality(speciality); // Actualiza la especialidad seleccionada
+        setSelectedSpeciality(speciality); 
     };
 
-    // useEffect para filtrar los doctores solo cuando cambian los textos de búsqueda o especialidad
     useEffect(() => {
         console.log("Doctors en store:", store.doctors);
 
@@ -76,13 +74,12 @@ export const DoctorList = () => {
             }
 
             console.log("Doctores filtrados:", filtered);
-            setFilteredDoctors(filtered); // Actualizamos la lista de doctores filtrados
+            setFilteredDoctors(filtered); 
         }
-    }, [searchText, selectedSpeciality, store.doctors]); // Este effect depende de store.doctors, searchText y selectedSpeciality
+    }, [searchText, selectedSpeciality, store.doctors]);
     
     return (
         <div className="container">
-            {/* Formulario con el dropdown para seleccionar especialidad */}
             <div className="mb-4">
                 <form>
                     <label htmlFor="specialitySelect" className="form-label">
@@ -111,7 +108,7 @@ export const DoctorList = () => {
                     placeholder="Search by name"
                     className="form-control"
                     value={searchText}
-                    onChange={handleSearch} // Llama a handleSearch cuando cambia el input
+                    onChange={handleSearch}
                 />
             </div>
 

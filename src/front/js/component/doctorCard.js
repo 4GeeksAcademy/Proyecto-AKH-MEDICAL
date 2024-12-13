@@ -21,11 +21,9 @@ export const DoctorCard = ({ doctor }) => {
                             </div>
                         </div>
 
-                        {/* Cinta para los botones */}
                         <div className="row g-0">
                             <div className="col">
                                 <div className="card-body text-center">
-                                    {/* Contenedor de la cinta */}
                                     <div className="button-strip">
                                         <Link to={`/doctors/${doctor.id}`}>
                                             <button className="btn btn-dark card-buttons">View profile</button>
