@@ -21,18 +21,21 @@ export const DoctorCard = ({ doctor }) => {
                             </div>
                         </div>
 
+                        {/* Cinta para los botones */}
                         <div className="row g-0">
                             <div className="col">
                                 <div className="card-body text-center">
-                                    <Link to={`/doctors/${doctor.id}`}>
-                                        <button className="btn btn-dark card-buttons">View profile</button>
-                                    </Link>
-                                    <Link to={`/appointment/${doctor.id}`}>
-                                        <button className="btn btn-dark card-buttons">Appointment</button>
-                                    </Link>
+                                    {/* Contenedor de la cinta */}
+                                    <div className="button-strip">
+                                        <Link to={`/doctors/${doctor.id}`}>
+                                            <button className="btn btn-dark card-buttons">View profile</button>
+                                        </Link>
+                                        <Link to={`/appointment/${doctor.id}`}>
+                                            <button className="btn btn-dark card-buttons">Appointment</button>
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>

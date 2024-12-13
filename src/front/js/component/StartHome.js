@@ -23,7 +23,7 @@ const StartHome = () => {
                         <Link to="/">
                             <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", paddingLeft: "30px", paddingRight: "30px", paddingTop: "24px", paddingBottom: "24px", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn me-3 design">PAYMENTS</button>
                         </Link>
-                        <Link to="/">
+                        <Link to="/doctors">
                             <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-4 me-3 design">SPECIALISTS</button>
                         </Link>
                     </div>

@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Importamos useNavigate
 import { Link } from "react-router-dom";
 import RigoImgUrl from "../../img/rigo-baby.jpg";
-
-
+import "../../styles/doctorProfile.css";
 
 export const DoctorProfile = () => {
     const { id } = useParams();
     const { store, actions } = useContext(Context);
+    const navigate = useNavigate(); // Usamos useNavigate para manejar la navegación
 
     useEffect(() => {
         actions.getDoctorById(id)
@@ -21,25 +21,26 @@ export const DoctorProfile = () => {
     }
 
     return (
-        <div className="container">
-            <div className="card w-100 mb-3">
-                <div className="row g-0">
-                    <div className="col-md-4">
-                        <img src={RigoImgUrl} className="img-fluid" alt="Doctor" />
-                    </div>
-                    <div className="col-md-8">
-                        <div className="card-body text-start">
-                            <h5 className="card-title">
-                                {doctor.info.first_name} {doctor.info.last_name}
-                            </h5>
-                            <p className="card-text">Especialidad: {doctor.speciality}</p>
-                            <p className="card-text">Edad: {doctor.age} años</p>
-                            <p className="card-text">Descripción: {doctor.description}</p>
-                            <Link to={`/appointment/${doctor.id}`}>
-                                <button className="btn btn-dark">Agendar cita</button>
-                            </Link>
-                        </div>
-                    </div>
+        <div className="doctor-profile-container">
+            {/* Botón Regresar fuera de la tarjeta */}
+            <button className="btn btn-secondary back-btn" onClick={() => navigate(-1)}>
+                <i className="fas fa-arrow-left me-2"></i> Regresar
+            </button>
+
+            <div className="doctor-profile-card">
+                <div className="doctor-image-container">
+                    <img src={RigoImgUrl} className="doctor-image" alt="Doctor" />
+                </div>
+                <div className="doctor-info">
+                    <h5 className="doctor-name">{doctor.info.first_name} {doctor.info.last_name}</h5>
+                    <p className="doctor-specialty"><strong>Especialidad:</strong> {doctor.speciality}</p>
+                    <p className="doctor-age"><strong>Edad:</strong> {doctor.age} años</p>
+                    <p className="doctor-description"><strong>Descripción:</strong> {doctor.description}</p>
+                    <Link to={`/appointment/${doctor.id}`}>
+                        <button className="btn btn-primary schedule-btn">
+                            <i className="fas fa-calendar-alt schedule-btn"></i> Agendar cita
+                        </button>
+                    </Link>
                 </div>
             </div>
         </div>
