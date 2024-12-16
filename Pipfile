@@ -22,6 +22,7 @@ flask-jwt-extended = "*"
 wtforms = "==3.1.2"
 flask-bcrypt = "*"
 alembic = "*"
+paypalrestsdk = "*"
 
 [requires]
 python_version = "3.10"

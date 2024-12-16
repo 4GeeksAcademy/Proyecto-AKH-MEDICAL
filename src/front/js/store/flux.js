@@ -84,6 +84,67 @@ const getState = ({ getStore, getActions, setStore }) => {
 				return null;
 			},
 
+			initiatePayment: async (appointmentId, doctorID) =>{
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, {
+						method:'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify ({ appointmentId, doctor_id: doctorID})
+					});
+
+					const result = await response.json();
+					if (result.approval_url){
+						return { status : 'success', approval_url: result.approval_url, price: result.price};
+					} else {
+						throw new Error ("Failed to create PayPal payment.");
+					}
+				} catch(error) {
+					console.error("Error initiating payment: ", error);
+					return {status: "error", message: error.message};
+				}
+			},
+			updateAppointmentStatus: async (appointmentId, status) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}/status`, { 
+						method: 'PUT', 
+						headers: { 
+							'Content-Type': 'application/json' 
+						}, 
+						body: JSON.stringify({ status }) 
+					}); 
+					if (!response.ok) { 
+						throw new Error('Error updating appointment status'); 
+					}  
+					const updatedAppointments = getStore().appointments.map(app => 
+						app.id === appointmentId ? { ...app, status } : app ); 
+						setStore({ appointments: updatedAppointments }); 
+						return true; 
+					} catch (error) { 
+						console.error('Error updating appointment status:', error); 
+						return false; 
+					}
+				},
+			cancelAppoinment: async (appointmentId) => {
+				try {
+					const response = await fetch (`${process.env.BACKEND_URL}/api/appointments/${appointmentId}`, {
+						method: "DELETE"
+					});
+
+					if (!response.ok){
+						throw new Error("Error cancelling appoinment");
+					}
+
+					const updatedAppoinments = getStore().appointments.filter(app => app.id !== appointmentId);
+					setStore({appointments:updatedAppoinments});
+					return true;
+				} catch (error) {
+					console.error("Error cancelling appoinment: ", error);
+					return false;
+				}
+			},
+			
 			getLogin: async (email, password) => {
 				try {
 					// fetching data from the backend

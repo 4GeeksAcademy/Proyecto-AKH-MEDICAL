@@ -34,12 +34,6 @@ export const Navbar = () => {
 				{/* Barra de navegación (Botones de Appointment, Who we are, etc.) */}
 				<div className="container-fluid navbar-buttons d-flex justify-content-start gap-3 p-2 background">
 					<div>
-						<Link to="/appointment">
-							<button className="btn btn-dark card-buttons btn-appointment">Appointment</button>
-						</Link>
-					</div>
-
-					<div>
 						<HashLink to="/#who">
 							<button className="btn btn-dark card-buttons btn-who-we-are">Who we are</button>
 						</HashLink>

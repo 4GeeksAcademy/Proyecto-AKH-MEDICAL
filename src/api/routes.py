@@ -1,6 +1,15 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+import paypalrestsdk
+import logging 
+paypalrestsdk.configure({ 
+    "mode": "sandbox",  
+    "client_id": "Afc8qlthkmv24JpZbwp2cCELxTbk4Kv5fGIeZk9KBwZKkdTut_7wSJ6LV4MQ9PzSNV_XS_0qTghi0SYZ",
+    "client_secret":"ENuCVvRxsMG2AhUEqtznqWnxlOATrzbPqNaBt0D6PbgaZL71uwL_JhKKS53B082VJ9wTileuhkHcKvO1" 
+    })
+logging.basicConfig(level=logging.INFO)
+
 from flask import Flask, request, jsonify, url_for, Blueprint, current_app
 from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Testimonial, TestimonialCount, Appointment
 from api.utils import generate_sitemap, APIException
@@ -10,14 +19,6 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_jwt_extended import jwt_required 
 import json 
-import paypalrestsdk
-import logging
-
-paypalrestsdk.configure({
-    "mode": "sandbox",
-    "client_id": "Afc8qlthkmv24JpZbwp2cCELxTbk4Kv5fGIeZk9KBwZKkdTut_7wSJ6LV4MQ9PzSNV_XS_0qTghi0SYZ",
-    "client_secret":"ENuCVvRxsMG2AhUEqtznqWnxlOATrzbPqNaBt0D6PbgaZL71uwL_JhKKS53B082VJ9wTileuhkHcKvO1"})
-logging.basicConfig(level=logging.INFO)
 
 api = Blueprint('api', __name__)
 CORS(api)
@@ -246,11 +247,14 @@ def create_testimonial():
 def create_payment():
     data = request.get_json()
     doctor_id = data.get('doctor_id')
+    print("Received Doctor ID:", doctor_id)
 
     doctor = Doctor.query.get(doctor_id)
     if not doctor:
+        print("Doctor not found for ID:", doctor_id)
         return jsonify({"error":"Doctor not found"}), 404
     
+    print(f"Found Doctor: {doctor}")
     price = doctor.medical_consultant_price
 
     payment = paypalrestsdk.Payment({
@@ -288,6 +292,20 @@ def create_payment():
     else:
         print(payment.error)
         return jsonify({"error": payment.error}), 500    
+
+@api.route('/payment/execute', methods=['GET'])
+def execute_payment():
+    payment_id = request.args.get('paymentId')
+    payer_id = request.args.get('PayerID')
+
+    payment = paypalrestsdk.Payment.find(payment_id)
+
+    if payment.execute({"payer_id": payer_id}):
+        print("Payment executed successfully")
+        return jsonify({"message": "Payment executed successfully"})
+    else:
+        print(payment.error)
+        return jsonify({"error": payment.error}), 500
 
 
         
