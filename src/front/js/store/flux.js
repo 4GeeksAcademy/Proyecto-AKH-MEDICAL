@@ -62,6 +62,28 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 
+			validateAppoinment: (newAppointment) => {
+				const store = getStore();
+				const doctor = store.doctors.find(doc => doc.id === newAppointment.doctorID)
+				if (!doctor){
+					return "Doctor not found";
+				}
+				const [startTime, endTime] = doctor.time_availability.split('-').map(time => new Date ('1970-01-01T${time.trim()}:00'));
+				const appointmentTime = new Date(newAppointment.date);
+				if (appointmentTime < startTime || appointmentTime > endTime){
+					return "Appoinment time is outside the doctor's availability";
+				}
+
+				const conflictingAppoinment = store.appointments.find(app => {
+					const appTime = new Date (app.date);
+					return app.doctorID === newAppointment.doctorID && Math.abs(appTime - appointmentTime) < 30 * 60 * 1000;
+				});
+				if (conflictingAppoinment){
+					return 'There is already an appoinment scheduled within 30 minutes of the requested time';
+				}
+				return null;
+			},
+
 			getLogin: async (email, password) => {
 				try {
 					// fetching data from the backend

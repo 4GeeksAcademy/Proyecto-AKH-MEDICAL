@@ -4,7 +4,7 @@ import { Context } from '../store/appContext';
 export const Schedule = () => {
     const [appointments, setAppointments] = useState([]);
     const { store, actions } = useContext(Context);
-    const [name, setName] = useState('');
+    const [doctorID, setDoctorId] = useState('');
     const [date, setDate] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -20,7 +20,18 @@ export const Schedule = () => {
     }
     const addAppointment = async (e) => {
         e.preventDefault();
-        const newAppointment = { name, date };
+        const newAppointment = { 
+            userId: store.user.id,
+            doctorID,
+            date
+         };
+         
+        const validationError = actions.validateAppoinment(newAppointment);
+        if (validationError){
+            setErrorMessage(validationError);
+            return;
+        }
+
         const data = await actions.addApoint(newAppointment);
         if (data) {
             setAppointments([...appointments, data]);
@@ -28,7 +39,7 @@ export const Schedule = () => {
         }
 
 
-        setName('');
+        setDoctorId('');
         setDate('');
         fetchAppointments();
         setErrorMessage(''); // Clear any previous error message
@@ -41,13 +52,18 @@ export const Schedule = () => {
                 <div className='col-md-4'>
                     <h5>Appointment Scheduler</h5>
                     <form onSubmit={addAppointment}>
-                        <input
-                            type="text"
-                            placeholder="Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                        />
+                        <select
+                        value={doctorID}
+                        onChange={(e) => setDoctorId(e.target.value)}
+                        required
+                        >
+                            <option value="">Select Doctor</option>
+                            {store.doctors.map(doctor => (
+                                <option key ={doctor.id} value={doctor.id}>
+                                    {doctor.info.first_name} {doctor.info.last_name} - {doctor.speciality}
+                                </option>
+                            ))}
+                        </select>
                         <input
                             type="datetime-local"
                             value={date}
@@ -61,7 +77,7 @@ export const Schedule = () => {
                     <ul>
                         {appointments.map((appointment, index) => (
                             <li key={index}>
-                                {appointment.name} - {new Date(appointment.date).toLocaleString()}
+                                {appointment.doctor.info.first_name} {appointment.doctor.info.last_name} - {appointment.patient.first_name} {appointment.patient.last_name}
                             </li>
                         ))}
                     </ul>
