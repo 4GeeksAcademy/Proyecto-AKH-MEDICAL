@@ -1,6 +1,15 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+import paypalrestsdk
+import logging 
+paypalrestsdk.configure({ 
+    "mode": "sandbox",  
+    "client_id": "Afc8qlthkmv24JpZbwp2cCELxTbk4Kv5fGIeZk9KBwZKkdTut_7wSJ6LV4MQ9PzSNV_XS_0qTghi0SYZ",
+    "client_secret":"ENuCVvRxsMG2AhUEqtznqWnxlOATrzbPqNaBt0D6PbgaZL71uwL_JhKKS53B082VJ9wTileuhkHcKvO1" 
+    })
+logging.basicConfig(level=logging.INFO)
+
 from flask import Flask, request, jsonify, url_for, Blueprint, current_app
 from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Testimonial, TestimonialCount, Appointment
 from api.utils import generate_sitemap, APIException
@@ -8,11 +17,13 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity, get_jwt
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required 
 import json 
+
 api = Blueprint('api', __name__)
 CORS(api)
 appointments = []
+
 
 @api.route('/register', methods=['POST'])
 def register():
@@ -232,3 +243,69 @@ def create_testimonial():
     # except Exception as e:
     #     return jsonify({"Error": "Unexpected error"}), 500
 
+@api.route('/create-payment', methods=['POST'])
+def create_payment():
+    data = request.get_json()
+    doctor_id = data.get('doctor_id')
+    print("Received Doctor ID:", doctor_id)
+
+    doctor = Doctor.query.get(doctor_id)
+    if not doctor:
+        print("Doctor not found for ID:", doctor_id)
+        return jsonify({"error":"Doctor not found"}), 404
+    
+    print(f"Found Doctor: {doctor}")
+    price = doctor.medical_consultant_price
+
+    payment = paypalrestsdk.Payment({
+        "intent":"sale",
+        "payer": {
+            "payment_method":"paypal"
+        },
+        "redirect_urls": {
+            "return_url": "http://localhost:3000/payment/execute",
+            "cancel_url": "http://localhost:3000/payment/cancel"
+        },
+        "transactions":[{
+            "item_list":{
+                "items":[{
+                    "name": "appoinment",
+                    "sku": "001",
+                    "price": f"{price: .2f}",
+                    "currency":"USD",
+                    "quantity": 1
+                }]
+            },
+            "amount": {
+                "total": f"{price: .2f}",
+                "currency":"USD"
+            },
+            "description":"Payment for medical consultation."
+        }]
+    })
+    if payment.create():
+        print("Payment created successfully")
+        for link in payment.links:
+            if link.rel == "approval_url":
+                approval_url = link.href
+                return jsonify({"approval_url":approval_url})
+    else:
+        print(payment.error)
+        return jsonify({"error": payment.error}), 500    
+
+@api.route('/payment/execute', methods=['GET'])
+def execute_payment():
+    payment_id = request.args.get('paymentId')
+    payer_id = request.args.get('PayerID')
+
+    payment = paypalrestsdk.Payment.find(payment_id)
+
+    if payment.execute({"payer_id": payer_id}):
+        print("Payment executed successfully")
+        return jsonify({"message": "Payment executed successfully"})
+    else:
+        print(payment.error)
+        return jsonify({"error": payment.error}), 500
+
+
+        

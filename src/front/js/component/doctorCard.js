@@ -28,7 +28,7 @@ export const DoctorCard = ({ doctor }) => {
                                         <Link to={`/doctors/${doctor.id}`}>
                                             <button className="btn btn-dark card-buttons">View profile</button>
                                         </Link>
-                                        <Link to={`/appointment/${doctor.id}`}>
+                                        <Link to={`/appointment`}>
                                             <button className="btn btn-dark card-buttons">Appointment</button>
                                         </Link>
                                     </div>

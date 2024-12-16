@@ -62,6 +62,89 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 			},
 
+			validateAppoinment: (newAppointment) => {
+				const store = getStore();
+				const doctor = store.doctors.find(doc => doc.id === newAppointment.doctorID)
+				if (!doctor){
+					return "Doctor not found";
+				}
+				const [startTime, endTime] = doctor.time_availability.split('-').map(time => new Date ('1970-01-01T${time.trim()}:00'));
+				const appointmentTime = new Date(newAppointment.date);
+				if (appointmentTime < startTime || appointmentTime > endTime){
+					return "Appoinment time is outside the doctor's availability";
+				}
+
+				const conflictingAppoinment = store.appointments.find(app => {
+					const appTime = new Date (app.date);
+					return app.doctorID === newAppointment.doctorID && Math.abs(appTime - appointmentTime) < 30 * 60 * 1000;
+				});
+				if (conflictingAppoinment){
+					return 'There is already an appoinment scheduled within 30 minutes of the requested time';
+				}
+				return null;
+			},
+
+			initiatePayment: async (appointmentId, doctorID) =>{
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, {
+						method:'POST',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify ({ appointmentId, doctor_id: doctorID})
+					});
+
+					const result = await response.json();
+					if (result.approval_url){
+						return { status : 'success', approval_url: result.approval_url, price: result.price};
+					} else {
+						throw new Error ("Failed to create PayPal payment.");
+					}
+				} catch(error) {
+					console.error("Error initiating payment: ", error);
+					return {status: "error", message: error.message};
+				}
+			},
+			updateAppointmentStatus: async (appointmentId, status) => {
+				try {
+					const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}/status`, { 
+						method: 'PUT', 
+						headers: { 
+							'Content-Type': 'application/json' 
+						}, 
+						body: JSON.stringify({ status }) 
+					}); 
+					if (!response.ok) { 
+						throw new Error('Error updating appointment status'); 
+					}  
+					const updatedAppointments = getStore().appointments.map(app => 
+						app.id === appointmentId ? { ...app, status } : app ); 
+						setStore({ appointments: updatedAppointments }); 
+						return true; 
+					} catch (error) { 
+						console.error('Error updating appointment status:', error); 
+						return false; 
+					}
+				},
+			cancelAppoinment: async (appointmentId) => {
+				try {
+					const response = await fetch (`${process.env.BACKEND_URL}/api/appointments/${appointmentId}`, {
+						method: "DELETE"
+					});
+
+					if (!response.ok){
+						throw new Error("Error cancelling appoinment");
+					}
+
+					const updatedAppoinments = getStore().appointments.filter(app => app.id !== appointmentId);
+					setStore({appointments:updatedAppoinments});
+					return true;
+				} catch (error) {
+					console.error("Error cancelling appoinment: ", error);
+					return false;
+				}
+			},
+			
 			getLogin: async (email, password) => {
 				try {
 					// fetching data from the backend
