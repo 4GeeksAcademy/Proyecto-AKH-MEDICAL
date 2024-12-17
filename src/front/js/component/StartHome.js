@@ -17,9 +17,9 @@ const StartHome = () => {
                     <i className="fa-brands fa-whatsapp" style={{ fontSize: "40px", color: "#25D366" }}></i>
                 </a>
             </h5>
-            <div className="container d-flex flex-row justify-content-center text-center">
-                <div className="row"> .
-                    <div className="col-sm-12 d-flex justify-content-center text-center" style={{ marginTop: "5%", fontSize: "17px" }}>
+            <div className="d-flex flex-row justify-content-center text-center">
+                <div className="row">
+                    <div className="col-sm-12 d-flex justify-content-center text-center" style={{ marginTop: "8%", fontSize: "17px" }}>
                         <Link to="/">
                             <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", paddingLeft: "30px", paddingRight: "30px", paddingTop: "24px", paddingBottom: "24px", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn me-3 design">PAYMENTS</button>
                         </Link>
@@ -28,7 +28,7 @@ const StartHome = () => {
                         </Link>
                     </div>
                     <div className="row">
-                        <div className="col-sm-12 mt-3 d-flex justify-content-center text-center" style={{ fontSize: "17px" }}>
+                        <div className="col-sm-12 d-flex justify-content-center text-center" style={{ fontSize: "17px" }}>
                             <Link to="/">
                                 <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-4 design">MEDICAL HISTORY</button>
                             </Link>
