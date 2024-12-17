@@ -24,6 +24,9 @@ export const Schedule = () => {
         console.log('Doctors:', store.doctors);
     };
 
+    useEffect(() => {
+        actions.addApoint();
+    }, []);
     const addAppointment = async (e) => {
         e.preventDefault();
         const newAppointment = {

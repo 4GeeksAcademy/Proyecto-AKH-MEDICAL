@@ -1,6 +1,6 @@
 
 import click
-from api.models import db, User
+from api.models import db, User, MedicalHistory
 
 """
 In this file, you can add as many commands as you want using the @app.cli.command decorator
@@ -32,3 +32,11 @@ def setup_commands(app):
     @app.cli.command("insert-test-data")
     def insert_test_data():
         pass
+
+        #//------------------------MEDICAL HISTORY---------------------//
+    # Comando para listar todos los historiales médicos
+    @app.cli.command("list-medical-histories")
+    def list_medical_histories():
+        medical_histories = MedicalHistory.query.all()
+        for history in medical_histories:
+            print(history.serialize())
