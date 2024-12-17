@@ -31,19 +31,19 @@ export const Navbar = () => {
 				<div className="container-fluid navbar-buttons d-flex justify-content-start gap-3 p-2 background">
 					<div>
 						<HashLink to="/#who">
-							<button className="btn btn-dark card-buttons btn-who-we-are">Who we are</button>
+							<button className="btn btn-dark card-buttons btn-who-we-are pt-3 pb-3 ps-4 pe-4">Who we are</button>
 						</HashLink>
 					</div>
 
 					<div>
 						<HashLink to="/#work">
-							<button className="btn btn-dark card-buttons btn-how-it-works">How it works</button>
+							<button className="btn btn-dark card-buttons btn-how-it-works pt-3 pb-3 ps-4 pe-4">How it works</button>
 						</HashLink>
 					</div>
 
 					<div>
 						<HashLink to="/#testimonials">
-							<button className="btn btn-dark card-buttons btn-testimonials">Testimonials</button>
+							<button className="btn btn-dark card-buttons btn-testimonials pt-3 pb-3 ps-4 pe-4">Testimonials</button>
 						</HashLink>
 					</div>
 				</div>
