@@ -1,6 +1,6 @@
 import os
 from flask_admin import Admin
-from .models import db, User, Doctor, Appointment, TokenBlockedList, Testimonial
+from .models import db, User, Doctor, Appointment, TokenBlockedList, Testimonial, MedicalHistory, MedicalHistoryView
 from flask_admin.contrib.sqla import ModelView
 
 def setup_admin(app):
@@ -15,7 +15,7 @@ def setup_admin(app):
     admin.add_view(ModelView(Appointment, db.session))
     admin.add_view(ModelView(TokenBlockedList, db.session))
     admin.add_view(ModelView(Testimonial, db.session))
-
+    admin.add_view(MedicalHistoryView(MedicalHistory, db.session))
 
     # You can duplicate that line to add mew models
     # admin.add_view(ModelView(YourModelName, db.session))

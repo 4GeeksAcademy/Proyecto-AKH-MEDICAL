@@ -1,10 +1,10 @@
+// component/StartHome.js
 import React from "react";
 import { Link } from "react-router-dom";
 import Who from "./Who";
 import Work from "./Work";
 import Testimonials from "./Testimonials";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
 
 const StartHome = () => {
     return (
@@ -18,7 +18,7 @@ const StartHome = () => {
                 </a>
             </h5>
             <div className="container d-flex flex-row justify-content-center text-center">
-                <div className="row"> .
+                <div className="row">
                     <div className="col-sm-12 d-flex justify-content-center text-center" style={{ marginTop: "5%", fontSize: "17px" }}>
                         <Link to="/">
                             <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", paddingLeft: "30px", paddingRight: "30px", paddingTop: "24px", paddingBottom: "24px", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn me-3 design">PAYMENTS</button>
@@ -29,7 +29,7 @@ const StartHome = () => {
                     </div>
                     <div className="row">
                         <div className="col-sm-12 mt-3 d-flex justify-content-center text-center" style={{ fontSize: "17px" }}>
-                            <Link to="/">
+                            <Link to="/medical-history">
                                 <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-4 design">MEDICAL HISTORY</button>
                             </Link>
                         </div>
@@ -42,6 +42,7 @@ const StartHome = () => {
                 <Testimonials />
             </div>
         </div>
-    )
-}
-export default StartHome
+    );
+};
+
+export default StartHome;
