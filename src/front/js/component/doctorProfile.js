@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../store/appContext";
-import { useParams, useNavigate } from "react-router-dom"; 
+import { useParams, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import RigoImgUrl from "../../img/rigo-baby.jpg";
 import "../../styles/doctorProfile.css";
@@ -8,7 +8,7 @@ import "../../styles/doctorProfile.css";
 export const DoctorProfile = () => {
     const { id } = useParams();
     const { store, actions } = useContext(Context);
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
 
     useEffect(() => {
         actions.getDoctorById(id)
@@ -33,7 +33,7 @@ export const DoctorProfile = () => {
                 <div className="doctor-info">
                     <h5 className="doctor-name">{doctor.info.first_name} {doctor.info.last_name}</h5>
                     <p className="doctor-specialty"><strong>Especialidad:</strong> {doctor.speciality}</p>
-                    <p className="doctor-age"><strong>Edad:</strong> {doctor.age} años</p>
+                    <p className="doctor-age"><strong>Edad:</strong> {doctor.info.age} años</p>
                     <p className="doctor-description"><strong>Descripción:</strong> {doctor.description}</p>
                     <Link to={`/appointment/${doctor.id}`}>
                         <button className="btn btn-primary schedule-btn">
