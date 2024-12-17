@@ -11,7 +11,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             appointments: [],
             selectedDoctor: null,
             selectedSpeciality: null,
-            testimonials: null,
+            testimonials: [],
             token: localStorage.getItem("token")
         },
         actions: {
@@ -235,7 +235,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             createTestimony: async (data) => {
                 console.log(data);
                 const store = getStore();
-                try {
+                // try {
                     const response = await fetch(process.env.BACKEND_URL + "/api/testimonial", {
                         method: "POST",
                         headers: {
@@ -253,10 +253,10 @@ const getState = ({ getStore, getActions, setStore }) => {
                         console.log("Failed to create testimony:", response.status);
                         return false;
                     }
-                } catch (error) {
-                    console.log("Error creating testimony:", error);
-                    return false;
-                }
+                // } catch (error) {
+                //     console.log("Error creating testimony:", error);
+                //     return false;
+                // }
             },
 
             getTestimonials: async () => {
@@ -267,11 +267,10 @@ const getState = ({ getStore, getActions, setStore }) => {
                         setStore({ testimonials: data });
                         return true;
                     }
-                    setStore({ testimonials: false });
                     return false;
                 } catch (error) {
                     console.log("Error loading message from backend", error);
-                    setStore({ testimonials: false });
+                    setStore({ testimonials: [] });
                     return false;
                 }
             },

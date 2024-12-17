@@ -24,13 +24,12 @@ const CreateTestimony = () => {
             }
         }
     }
-
+    console.log(store.testimonials)
     useEffect(() => {
         if (store.user == false) {
             navigate("/login")
         }
     }, [store.user])
-
     return (
         <div className="vh-100 d-flex justify-content-center text-center align-items-center mb-5" style={{ background: "linear-gradient(135deg, #f5f7fa 20%, #c3cfe2 50%)" }}>
             <div className="mb-5">
@@ -43,7 +42,7 @@ const CreateTestimony = () => {
                         </div>
                         <div className="col-12 mt-3">
                             <label htmlFor="exampleInputEmail1" className="form-label"><b>CANTIDAD</b></label>
-                            <input value={count} onChange={(e) => setCount(e.target.value)} type="number" className="form-control my-2" name="Testimony" placeholder="Testimony" required />
+                            <input min={1} max={5} value={count} onChange={(e) => setCount(e.target.value)} type="number" className="form-control my-2" name="Testimony" placeholder="Testimony" required />
                         </div>
 
                         <button className="btn btn-outline-success mt-4 p-2" type="submit" role="button"><b>SEND TESTIMONY</b></button>
