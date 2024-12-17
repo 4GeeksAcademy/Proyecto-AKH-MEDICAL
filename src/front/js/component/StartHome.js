@@ -26,18 +26,10 @@ const StartHome = () => {
                         <Link to="/doctors">
                             <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-4 me-3 design">SPECIALISTS</button>
                         </Link>
-
-                        <Link to="/medical-history">
-                            <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-4 me-3 design">MEDICAL HISTORY</button>
-                        </Link>
-
-                        <Link to="/">
-                            <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-4 design">HEALTHY PLAN</button>
-                        </Link>
                     </div>
                     <div className="row">
                         <div className="col-sm-12 mt-3 d-flex justify-content-center text-center" style={{ fontSize: "17px" }}>
-                            <Link to="/">
+                            <Link to="/medical-history">
                                 <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-4 design">MEDICAL HISTORY</button>
                             </Link>
                         </div>
