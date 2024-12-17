@@ -10,6 +10,7 @@ import { Single } from "./pages/single";
 import injectContext from "./store/appContext";
 
 import { DoctorProfile } from "./component/doctorProfile";
+import { DoctorList } from "./component/doctorList";
 import { Schedule } from "./component/schedule";
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
@@ -35,6 +36,7 @@ const Layout = () => {
                     <Routes>
                         <Route element={<Doctors />} path="/doctors" />
                         <Route element={<DoctorProfile />} path="/doctors/:id" />
+                        <Route element={<DoctorList />} path="/doctors" />
                         <Route element={<Schedule />} path="/appointment" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Single />} path="/single/:theid" />

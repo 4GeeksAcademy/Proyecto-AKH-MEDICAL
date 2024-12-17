@@ -1,17 +1,28 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
+import paypalrestsdk
+import logging 
+paypalrestsdk.configure({ 
+    "mode": "sandbox",  
+    "client_id": "Afc8qlthkmv24JpZbwp2cCELxTbk4Kv5fGIeZk9KBwZKkdTut_7wSJ6LV4MQ9PzSNV_XS_0qTghi0SYZ",
+    "client_secret":"ENuCVvRxsMG2AhUEqtznqWnxlOATrzbPqNaBt0D6PbgaZL71uwL_JhKKS53B082VJ9wTileuhkHcKvO1" 
+    })
+logging.basicConfig(level=logging.INFO)
+
 from flask import Flask, request, jsonify, url_for, Blueprint, current_app
-from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Testimonial, TestimonialCount, MedicalHistory
+from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Testimonial, TestimonialCount, MedicalHistory, Appointment
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt, jwt_required 
 import json
+
 
 api = Blueprint('api', __name__)
 CORS(api)
 appointments = []
+
 
 @api.route('/register', methods=['POST'])
 def register():
@@ -131,7 +142,7 @@ def get_doctors():
     results = list(map(lambda item: item.serialize(), doctors))
     return jsonify(results), 200
 
-@api.route('/doctors/<int:doctor_id>')
+@api.route('/doctors/<int:doctor_id>', methods=['GET'])
 def get_doctor(doctor_id):
     doctor = Doctor.query.get(doctor_id)
     if doctor:

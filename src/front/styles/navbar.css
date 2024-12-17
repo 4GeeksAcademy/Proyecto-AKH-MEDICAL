@@ -1,21 +1,135 @@
-.background {
-    background-color: #80CBC4;
+.navbar .d-flex {
+    margin-top: 10px; /* Separación de los botones Login/SignUp */
 }
-.form-control {
-    border-radius: 100px;
-}
+
 .navbar-buttons {
-    border-radius: 100px;
-    padding: 8px 16px; 
-    background-color: #fff; 
-    display: inline-flex; 
-    align-items: center;
-    justify-content: center;
-    color: black;
-    border: transparent;
+    display: flex; 
+    gap: 15px;
+    align-items: center; 
+    justify-content: flex-start; 
+    padding-left: 10px; 
 }
 
+.card-buttons {
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 25px; 
+    transition: all 0.3s ease;
+}
 
-.navbar-buttons i {
-    color: #333;
+/* Botón Login */
+.btn-login {
+    background-color: #4CAF50; 
+    color: white;
+}
+
+.btn-login:hover {
+    background-color: #45a049; 
+    transform: translateY(-2px);
+}
+
+/* Botón SignUp */
+.btn-signup {
+    background-color: #2196F3; 
+    color: white;
+}
+
+.btn-signup:hover {
+    background-color: #1e88e5; 
+    transform: translateY(-2px);
+}
+
+/* Botón Appointment */
+.btn-appointment {
+    background-color: #388E3C;
+    color: white;
+}
+
+.btn-appointment:hover {
+    background-color: #2c6e2b; 
+    transform: translateY(-2px);
+}
+
+/* Botón Who we are */
+.btn-who-we-are {
+    background-color: #003366;
+    color: white;
+}
+
+.btn-who-we-are:hover {
+    background-color: #00224d; 
+    transform: translateY(-2px);
+}
+
+/* Botón How it works */
+.btn-how-it-works {
+    background-color: #616161;
+    color: white;
+}
+
+.btn-how-it-works:hover {
+    background-color: #424242; 
+    transform: translateY(-2px);
+}
+
+/* Botón Testimonials */
+.btn-testimonials {
+    background-color: #00aaff;
+    color: white;
+}
+
+.btn-testimonials:hover {
+    background-color: #90A4AE; 
+    transform: translateY(-2px);
+}
+
+/* Estilos para los botones de Login y SignUp */
+.btn-login, .btn-signup {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 30px; 
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    text-transform: uppercase;
+}
+
+/* Login */
+.btn-login {
+    background-color: #4CAF50;
+    color: white;
+    box-shadow: 0px 4px 10px rgba(76, 175, 80, 0.3);
+    border: 2px solid #4CAF50; 
+}
+
+.btn-login:hover {
+    background-color: #45a049; 
+    transform: translateY(-3px);
+    box-shadow: 0px 6px 15px rgba(76, 175, 80, 0.4);
+}
+
+/* SignUp */
+.btn-signup {
+    background-color: #2196F3;
+    color: white;
+    border: 2px solid transparent;
+    box-shadow: 0px 4px 10px rgba(33, 150, 243, 0.3);
+}
+
+.btn-signup:hover {
+    background-color: #1e88e5;
+    transform: translateY(-3px);
+    box-shadow: 0px 6px 15px rgba(33, 150, 243, 0.4); 
+}
+
+.background {
+    background-color: #b3bcc4; 
+    padding: 20px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); 
+}
+
+.container-fluid .d-flex div {
+    margin-right: 20px; 
 }
