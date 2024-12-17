@@ -22,7 +22,7 @@ class User(db.Model):
     city = db.Column(db.String(80), nullable=False)
     age = db.Column(db.String(80), nullable=False)
     role = db.Column(db.Enum(RoleEnum), nullable=False)
-    img_url = db.Column(db.String(250))
+    #img_url = db.Column(db.String(250))
 
 
     appointments = db.relationship("Appointment", back_populates="patient", lazy=True)

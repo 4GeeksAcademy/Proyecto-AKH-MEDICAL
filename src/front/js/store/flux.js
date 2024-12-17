@@ -33,32 +33,32 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 			addApoint: async (newAppointment) => {
 				try {
+					console.log("Sending appointment data:",newAppointment);
 					const response = await fetch(process.env.BACKEND_URL + "/api/appointments", {
 						method: 'POST',
-						body: JSON.stringify(newAppointment),
 						headers: {
 							"Content-Type": "application/json"
 						},
+						body: JSON.stringify(newAppointment)
 					});
 
 					const contentType = response.headers.get("content-type");
 					if (!response.ok) {
 						if (contentType && contentType.includes("application/json")) {
 							const errorData = await response.json();
+							console.error("Error response data:", errorData);
 							throw new Error(errorData.message || 'Error adding appointment');
 						} else {
 							throw new Error('Unexpected error occurred.');
 						}
 					}
 
-					if (contentType && contentType.includes("application/json")) {
-						const addedAppointment = await response.json();
-						return addedAppointment;
-					} else {
-						throw new Error('Unexpected content type.');
-					}
+					const data = await response.json();
+					setStore({appointments:[...getStore().appointments,data]})
+					return data;
 				} catch (error) {
 					console.log(error.message || 'Error adding appointment. Please try again.');
+					return null;
 				}
 			},
 

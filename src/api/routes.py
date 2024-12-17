@@ -79,16 +79,35 @@ def register():
     return jsonify(user.serialize())
         
 @api.route('/appointments', methods=['GET', 'POST'])
-def manage_appointments():
-    if request.method == 'POST':
+def manage_appointments(): 
+    if request.method == 'POST': 
         data = request.json
-        for appointment in appointments:
-            if appointment['date'] == data['date']:
-                return jsonify({"Msg": "Time slot is not available!"}), 400
+        print("Received data:", data)
+        # Verificar que se proporcionen todos los campos necesarios 
+        required_fields = ['user_id', 'doctor_id', 'date'] 
+        missing_field = [field for field in required_fields if field not in data]
+        if missing_field:
+            print("Missing fields:", missing_field)
+            return jsonify({"Msg": f"Missing fields: {', '.join(missing_field)}"}), 400
+        # Verificar la disponibilidad de la cita 
+        existing_appointment = Appointment.query.filter_by(doctor_id=data['doctor_id'], date=data['date']).first() 
+        if existing_appointment: 
+            print("Time slot is not available for Doctor ID:", data['doctor_id'], "at Date:", data['date'])
+            return jsonify({"Msg": "Time slot is not available!"}),400
         
-        appointments.append(data)
-        return jsonify({"Msg": "Appointment added!", "appointment": data}), 201
-    return jsonify(appointments), 200
+        # Crear y agregar la nueva cita 
+        new_appointment = Appointment( 
+            user_id=data['user_id'], 
+            doctor_id=data['doctor_id'], 
+            date=data['date'] ) 
+        db.session.add(new_appointment) 
+        db.session.commit() 
+
+        print("Appoinment added: ", new_appointment)
+        return jsonify({"Msg": "Appointment added!", "appointment": new_appointment.serialize()}), 201 
+    # Obtener todas las citas 
+    appointments = Appointment.query.all() 
+    return jsonify([appointment.serialize() for appointment in appointments]), 200
 
 @api.route('/signup', methods=['POST'])
 def signup_user():
