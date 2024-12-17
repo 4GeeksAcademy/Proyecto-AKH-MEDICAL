@@ -28,6 +28,7 @@
     font-weight: bold;
 }
 
+.medical-history-form-group input,
 .medical-history-form-group select,
 .medical-history-form-group textarea {
     width: 100%;

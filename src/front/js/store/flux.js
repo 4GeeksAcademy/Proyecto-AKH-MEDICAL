@@ -1,5 +1,3 @@
-import CreateTestimony from "../pages/CreateTestimony";
-
 const getState = ({ getStore, getActions, setStore }) => {
     return {
         store: {
@@ -14,11 +12,9 @@ const getState = ({ getStore, getActions, setStore }) => {
             selectedDoctor: null,
             selectedSpeciality: null,
             testimonials: null,
-			token: localStorage.getItem("token")
+            token: localStorage.getItem("token")
         },
         actions: {
-            // Use getActions to call a function within a function
-
             fetchSchedule: async () => {
                 try {
                     const response = await fetch(process.env.BACKEND_URL + "/api/appointments");
@@ -65,20 +61,21 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             getLogin: async (email, password) => {
                 try {
-                    // fetching data from the backend
                     const resp = await fetch(process.env.BACKEND_URL + "/api/login", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            email: email,
-                            password: password
-                        })
+                        body: JSON.stringify({ email, password })
                     });
                     if (resp.ok) {
                         const data = await resp.json();
                         console.log(data);
+
+                        // Guardar el token, el rol y el correo electrónico en el almacenamiento local
                         localStorage.setItem("token", data.access_token);
-                        setStore({ user: data.user, auth: true });
+                        localStorage.setItem("role", data.user ? data.user.role : "DOCTOR");
+                        localStorage.setItem("email", email);  // Aquí se guarda el email del usuario
+
+                        setStore({ user: data.user || data.doctor, auth: true });
                         return true;
                     }
                     return false;
@@ -87,6 +84,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     return false;
                 }
             },
+            
             logOut: async () => {
                 try {
                     const response = await fetch(process.env.BACKEND_URL + "/api/logout", {
@@ -99,6 +97,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                     if (response.ok) {
                         const result = await response.json();
                         localStorage.removeItem("token");
+                        localStorage.removeItem("email");  // Eliminar el email del almacenamiento local al cerrar sesión
+                        localStorage.removeItem("role");  // Eliminar el rol del almacenamiento local al cerrar sesión
                         setStore({ user: false, auth: false });
                         return true;
                     } else {
@@ -119,7 +119,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                             "Authorization": "Bearer " + localStorage.getItem("token")
                         },
                     });
-
+            
                     if (response.ok) {
                         const result = await response.json();
                         setStore({ user: result, auth: true });
@@ -134,12 +134,11 @@ const getState = ({ getStore, getActions, setStore }) => {
                     setStore({ user: false, auth: false });
                     return false;
                 }
-            },
+            },            
 
             sign_up: async (data) => {
                 console.log(data);
                 try {
-                    // fetching data from the backend
                     await fetch(process.env.BACKEND_URL + "/api/register", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -156,7 +155,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                 console.log(data);
                 const store = getStore();
                 try {
-                    // Enviando datos al backend
                     const response = await fetch(process.env.BACKEND_URL + "/api/testimonial", {
                         method: "POST",
                         headers: {
@@ -289,31 +287,31 @@ const getState = ({ getStore, getActions, setStore }) => {
                     searchText
                 });
             },
-			createMedicalHistory: async (medicalHistory) => {
-                const store = getStore();
-                try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/medical-history", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${store.token}`
-                        },
-                        body: JSON.stringify(medicalHistory)
-                    });
-            
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(errorData.Msg || "Error al crear el historial médico");
+
+                createMedicalHistory: async (medicalHistory) => {
+                    const store = getStore();
+                    try {
+                        const response = await fetch(process.env.BACKEND_URL + "/api/medical-history", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${store.token}`
+                            },
+                            body: JSON.stringify(medicalHistory)
+                        });
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.Msg || "Error al crear el historial médico");
+                        }
+
+                        const data = await response.json();
+                        return data;
+                    } catch (error) {
+                        console.error("Error creando historial médico:", error);
+                        throw error;
                     }
-            
-                    const data = await response.json();
-                    return data;
-                } catch (error) {
-                    console.error("Error creando historial médico:", error);
-                    throw error;
                 }
             }
-        }
     };
 };
 

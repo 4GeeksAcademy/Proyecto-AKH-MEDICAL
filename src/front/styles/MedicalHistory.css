@@ -22,6 +22,7 @@
     border: none;
     border-radius: 5px;
     transition: background-color 0.3s, transform 0.3s;
+    margin-bottom: 10px;
 }
 
 .doctor-btn:hover {

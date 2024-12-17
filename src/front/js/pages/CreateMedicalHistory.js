@@ -1,199 +1,137 @@
-// pages/CreateMedicalHistory.js
-import React, { useContext, useEffect, useState } from "react";
-import { Context } from "../store/appContext";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/CreateMedicalHistory.css";
 
 const CreateMedicalHistory = () => {
-    const { store } = useContext(Context);
     const navigate = useNavigate();
-    const [speciality, setSpeciality] = useState("");
     const [doctorEmail, setDoctorEmail] = useState("");
     const [userEmail, setUserEmail] = useState("");
     const [observation, setObservation] = useState("");
-    const [specialities, setSpecialities] = useState([]);
-    const [doctors, setDoctors] = useState([]);
-    const [users, setUsers] = useState([]);
-    const [errorMessage, setErrorMessage] = useState("");
+    const [patients, setPatients] = useState([]);
 
+    // Obtener el correo del doctor desde localStorage
     useEffect(() => {
-        const fetchSpecialities = async () => {
-            try {
-                const response = await fetch(process.env.BACKEND_URL + "/api/specialities", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setSpecialities(data);
-                } else {
-                    console.error("Error fetching specialities", response.statusText);
-                }
-            } catch (error) {
-                console.error("Error:", error);
+        try {
+            const email = localStorage.getItem('email');
+            if (email) {
+                setDoctorEmail(email);
+            } else {
+                console.error("No doctor email found in localStorage");
             }
-        };
-
-        fetchSpecialities();
+        } catch (error) {
+            console.error("Error accessing localStorage:", error);
+        }
     }, []);
 
+    // Obtener la lista de pacientes desde el backend
     useEffect(() => {
-        if (speciality) {
-            const fetchDoctorsBySpeciality = async () => {
-                try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/medical-history/doctors-by-speciality?speciality=${speciality}`, {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        setDoctors(data);
-                    } else {
-                        console.error("Error fetching doctors by speciality", response.statusText);
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                }
-            };
-
-            fetchDoctorsBySpeciality();
-        } else {
-            setDoctors([]);
-        }
-    }, [speciality]);
-
-    useEffect(() => {
-        const fetchUsers = async () => {
+        const fetchPatients = async () => {
             try {
-                const response = await fetch(`${process.env.BACKEND_URL}/api/users`, {
-                    method: "GET",
+                    const response = await fetch(process.env.BACKEND_URL + "/api/patients", {
                     headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${store.token}`
+                        "Authorization": "Bearer " + localStorage.getItem("token")
                     }
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    setUsers(data);
+                console.log("Response status:", response.status); // Estado de la respuesta
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error("Unauthorized access - token may be invalid or expired");
+                    }
+                    throw new Error("Failed to fetch patients");
+                }
+
+                const text = await response.text();
+                console.log("Raw response text:", text); // Respuesta en texto crudo
+
+                const data = JSON.parse(text);
+                console.log("Parsed JSON data:", data); // Datos JSON parseados
+
+                if (Array.isArray(data)) {
+                    setPatients(data);
                 } else {
-                    console.error("Error fetching users", response.statusText);
+                    throw new Error("Received invalid JSON data");
                 }
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Error fetching patients:", error);
             }
         };
 
-        fetchUsers();
-    }, [store.token]);
+        fetchPatients();
+    }, []);
 
-    const handleSave = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-
         const medicalHistory = {
             doctor_email: doctorEmail,
             user_email: userEmail,
-            observation: observation
+            observation,
         };
 
-        try {
-            const response = await fetch(process.env.BACKEND_URL + "/api/medical-history", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${store.token}`
-                },
-                body: JSON.stringify(medicalHistory)
-            });
-
-            if (response.ok) {
-                alert("Historial médico guardado con éxito!");
+        fetch("/api/medical-history", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            body: JSON.stringify(medicalHistory),
+        })
+            .then(response => {
+                console.log("Submit response status:", response.status); // Estado de la respuesta al guardar el historial médico
+                return response.json();
+            })
+            .then(data => {
+                console.log("Medical history created:", data);
                 navigate("/medical-history");
-            } else {
-                alert("Error al guardar el historial médico.", response.statusText);
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Error al guardar el historial médico.");
-        }
+            })
+            .catch(error => console.error("Error creating medical history:", error));
     };
 
     return (
         <div className="medical-history-create-container">
-            <h1 className="medical-history-create-title">CREATE MEDICAL HISTORY</h1>
-            <form onSubmit={handleSave}>
+            <h1 className="medical-history-create-title">Create Medical History</h1>
+            <form onSubmit={handleSubmit} className="create-medical-history-form">
                 <div className="medical-history-form-group">
-                    <label>Speciality</label>
-                    <select
-                        value={speciality}
-                        onChange={(e) => setSpeciality(e.target.value)}
-                        required
-                    >
-                        <option value="" disabled>Select a speciality</option>
-                        {specialities.map((spec, index) => (
-                            <option key={index} value={spec}>{spec}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className="medical-history-form-group">
-                    <label>Doctor's Email</label>
-                    <select
+                    <label htmlFor="doctorEmail">Doctor's Email:</label>
+                    <input
+                        type="email"
+                        id="doctorEmail"
                         value={doctorEmail}
-                        onChange={(e) => setDoctorEmail(e.target.value)}
-                        required
-                    >
-                        <option value="" disabled>Select a doctor</option>
-                        {doctors.map((doctor) => (
-                            <option key={doctor.id} value={doctor.info.email}>
-                                {doctor.info.email}
-                            </option>
-                        ))}
-                    </select>
+                        readOnly
+                        className="form-control"
+                    />
                 </div>
                 <div className="medical-history-form-group">
-                    <label>User Email</label>
+                    <label htmlFor="userEmail">User's Email:</label>
                     <select
+                        id="userEmail"
                         value={userEmail}
                         onChange={(e) => setUserEmail(e.target.value)}
                         required
+                        className="form-control"
                     >
-                        <option value="" disabled>Select a user</option>
-                        {users.map((user) => (
-                            <option key={user.id} value={user.email}>
-                                {user.email}
+                        <option value="">Select a user</option>
+                        {patients.map(patient => (
+                            <option key={patient.id} value={patient.email}>
+                                {patient.email}
                             </option>
                         ))}
                     </select>
                 </div>
-                {errorMessage && <p className="error-message">{errorMessage}</p>}
                 <div className="medical-history-form-group">
-                    <label>Observation</label>
+                    <label htmlFor="observation">Observation:</label>
                     <textarea
+                        id="observation"
                         value={observation}
                         onChange={(e) => setObservation(e.target.value)}
                         required
+                        className="form-control"
                     />
                 </div>
                 <div className="medical-history-button-group">
-                    <button
-                        type="submit"
-                        className="medical-history-btn medical-history-btn-save"
-                    >
-                        Save
-                    </button>
-                    <button
-                        type="button"
-                        className="medical-history-btn medical-history-btn-back"
-                        onClick={() => navigate("/medical-history")}
-                    >
-                        Return
-                    </button>
+                    <button type="submit" className="medical-history-btn">Save Medical History</button>
+                    <button type="button" className="medical-history-btn medical-history-btn-back" onClick={() => navigate("/medical-history")}>Back</button>
                 </div>
             </form>
         </div>
