@@ -42,22 +42,21 @@ const getState = ({ getStore, getActions, setStore }) => {
                     if (!response.ok) {
                         if (contentType && contentType.includes("application/json")) {
                             const errorData = await response.json();
+							console.error("Error response data:", errorData);
                             throw new Error(errorData.message || 'Error adding appointment');
                         } else {
                             throw new Error('Unexpected error occurred.');
                         }
                     }
 
-                    if (contentType && contentType.includes("application/json")) {
-                        const addedAppointment = await response.json();
-                        return addedAppointment;
-                    } else {
-                        throw new Error('Unexpected content type.');
-                    }
-                } catch (error) {
-                    console.log(error.message || 'Error adding appointment. Please try again.');
-                }
-            },
+					const data = await response.json();
+					setStore({appointments:[...getStore().appointments,data]})
+					return data;
+				} catch (error) {
+					console.log(error.message || 'Error adding appointment. Please try again.');
+					return null;
+				}
+			},
 
 			validateAppoinment: (newAppointment) => {
 				const store = getStore();
