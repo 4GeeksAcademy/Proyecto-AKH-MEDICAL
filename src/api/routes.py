@@ -105,7 +105,7 @@ def manage_appointments():
         
         # Crear y agregar la nueva cita 
         new_appointment = Appointment( 
-            patient_id=user_id, 
+            #patient_id=user_id, 
             doctor_id=data['doctor_id'], 
             date=data['date'] ) 
         db.session.add(new_appointment) 
@@ -457,18 +457,19 @@ def execute_payment():
         print(payment.error)
         return jsonify({"error": payment.error}), 500
 
-@api.route("/profilepic", method=["PUT"])
+@api.route("/profilepic", methods=["PUT"])
 @jwt_required()
 def user_picture():
     try:
         user_id = get_jwt_identity()
         user = User.query.filter_by(user_id=user_id).first()
         if user is None:
-            return jsonify(("msg": "User not found")), 400
+            return jsonify({"message": "User not found"}), 400
 
         file = request.files["profilePicture"]
         temp = NamedTemporaryFile(delete=False)
         file.saved(temp.name)
+        extension = file.filename.rsplit('.', 1)[1].lower()
         filename = "usersPictures/" + str(user_id) + "." + extension
         upload_result=cloudinary.uploader.upload(temp.name, public_id=filename, asset_folder="userPicture")
         print(upload_result)
@@ -479,17 +480,17 @@ def user_picture():
         user.img_url= asset_id
         db.session.add(user)
         db.session.commit()
-        return jsonify(("msg": "Picture updated"))
+        return jsonify({"msg": "Picture updated"})
     except Exception as ex:
         print(ex)
-        return json (("msg":"Error al subir la foto de perfil"))
-@api.route("/profilepic", method=["GET"])
+        return json ({"msg":"Error al subir la foto de perfil"})
+@api.route("/profilepic", methods=["GET"])
 @jwt_required()
 def user_profile_picture_get():
     user_id = get_jwt_identity()
     user=Users.query.get(user_id)
     if user is None:
-        return jsonify(("msg": "Usuario no encontrado")), 404
+        return jsonify({"msg": "Usuario no encontrado"}), 404
     print(user.img_url)
     image_info=cloudinary.api.resource(user.img_url)
     print(image_info)

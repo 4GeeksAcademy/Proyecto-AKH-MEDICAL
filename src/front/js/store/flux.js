@@ -33,7 +33,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     const store = getStore();
                     
                     let variables ={
-                        patient_id: newAppointment.patient_id,
+                        //patient_id: newAppointment.patient_id,
                         doctor_id: newAppointment.doctorId,
                         date: newAppointment.date   
                     }
@@ -96,10 +96,10 @@ const getState = ({ getStore, getActions, setStore }) => {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, { mode: 'no-cors'}, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json', 'Authorization': 'Bearer A21AAFs9YK9gWL6Vl6AqeoPtm-nf6JmtPOwAc8kfzHVdeigPEhrOJLCvbeIt3fJ4NKvyZo_iWic7sC3RIQrVUdu7igagcuMVQ',
                         },
                         body: JSON.stringify({ appointmentId, doctor_id: doctorID })
-                    });
+                    }); response = requests.get('https://api-m.sandbox.paypal.com/v2/payments/authorizations/0T620041CK889853A', headers=headers)
 
                     const result = await response.json();
                     if (result.approval_url) {

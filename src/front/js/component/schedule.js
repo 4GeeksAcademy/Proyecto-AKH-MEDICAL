@@ -37,7 +37,7 @@ export const Schedule = () => {
         }
 
         const newAppointment = {
-            patient_id: store.user.id,
+            //patient_id: store.user.id,
             doctorId: parseInt(doctorId),
             date
         };
