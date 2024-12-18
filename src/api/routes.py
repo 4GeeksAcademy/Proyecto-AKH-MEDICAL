@@ -457,3 +457,29 @@ def execute_payment():
         print(payment.error)
         return jsonify({"error": payment.error}), 500
 
+@api.route("/profilepic", method=["PUT"])
+@jwt_required()
+def user_picture():
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.filter_by(user_id=user_id).first()
+        if user is None:
+            return jsonify(("msg": "User not found")), 400
+
+        file = request.files["profilePicture"]
+        temp = NamedTemporaryFile(delete=False)
+        file.saved(temp.name)
+        filename = "usersPictures/" + str(user_id) + "." + extension
+        upload_result=cloudinary.uploader.upload(temp.name, public_id=filename, asset_folder="userPicture")
+        print(upload_result)
+        asset_id-upload_result["public_id"]
+        user = User(
+        img_url= img_url
+    )
+        user.img_url= asset_id
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(("msg": "Picture updated"))
+    except Exception as ex:
+        print(ex)
+        return json (("msg":"Error al subir la foto de perfil"))
