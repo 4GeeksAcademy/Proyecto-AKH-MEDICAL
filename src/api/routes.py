@@ -483,3 +483,14 @@ def user_picture():
     except Exception as ex:
         print(ex)
         return json (("msg":"Error al subir la foto de perfil"))
+@api.route("/profilepic", method=["GET"])
+@jwt_required()
+def user_profile_picture_get():
+    user_id = get_jwt_identity()
+    user=Users.query.get(user_id)
+    if user is None:
+        return jsonify(("msg": "Usuario no encontrado")), 404
+    print(user.img_url)
+    image_info=cloudinary.api.resource(user.img_url)
+    print(image_info)
+    return jsonify({"url":image_info["secure_url"]})
