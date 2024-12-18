@@ -10,6 +10,15 @@ paypalrestsdk.configure({
     })
 logging.basicConfig(level=logging.INFO)
 
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+cloudinary.config(
+    cloud_name="dggx13czr",
+    api_key="355342381871128",
+    api_secret="KzBhRHHJjzLdDjcPM6cDcLP2LVE"
+)
+
 from flask import Flask, request, jsonify, url_for, Blueprint, current_app
 from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Testimonial, TestimonialCount, MedicalHistory, Appointment
 from api.utils import generate_sitemap, APIException
@@ -21,13 +30,12 @@ import json
 
 api = Blueprint('api', __name__)
 CORS(api)
-appointments = []
 
 
 @api.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    exist = User.query.filter_by(email=data.get("email")).first()
+    exist=User.query.filter_by(email=data.get("email")).first() # 10 responde 1
     if exist:
         return jsonify({"Msg": "Email already exists"}), 400
 
@@ -40,9 +48,11 @@ def register():
     age = data.get('age')
     role = data.get('role')
     if role not in [RoleEnum.PATIENT.value, RoleEnum.DOCTOR.value]:
+        print(RoleEnum.PATIENT.value)
         return jsonify({"Error": "Invalid role"}), 400
-
+   
     hashed_password = generate_password_hash(password)
+    # print(hashed_password)
     user = User(
         email=email,
         password=hashed_password,

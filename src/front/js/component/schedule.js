@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Context } from '../store/appContext';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export const Schedule = () => {
     const [appointments, setAppointments] = useState([]);
@@ -11,13 +12,9 @@ export const Schedule = () => {
     const [showPayPalButton, setShowPayPalButton] = useState(false);
     const [appointmentId, setAppointmentId] = useState(null);
     const [price, setPrice] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        actions.getCurrentUser().then(userLoaded => { 
-            if (!userLoaded) { 
-                setErrorMessage("Failed to load user"); 
-            }
-        });
         fetchAppointments();
     }, []);
 
@@ -44,7 +41,6 @@ export const Schedule = () => {
             doctorId: parseInt(doctorId),
             date
         };
-         console.log("Selected Doctor ID:", doctorId);
 
         const validationError = actions.validateAppoinment(newAppointment);
         if (validationError) {
@@ -55,7 +51,8 @@ export const Schedule = () => {
         const data = await actions.addApoint(newAppointment);
         if (data) {
             setAppointments([...appointments, data]);
-            const paymentResult = await actions.initiatePayment(data.id, doctorId);
+            const paymentResult = 
+            await actions.initiatePayment(data.id, doctorId);
             if (paymentResult.status === 'success') {
                 setShowPayPalButton(true);
                 setAppointmentId(data.id);
