@@ -289,6 +289,8 @@ def create_medical_history():
     except Exception as e:
         print(f"Error creating medical history: {e}")
         return jsonify({"error": "Failed to create medical history"}), 500
+    
+    
 
 @api.route('/medical-history/doctors-by-speciality', methods=['GET'])
 def get_doctors_by_speciality():

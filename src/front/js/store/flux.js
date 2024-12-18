@@ -12,7 +12,9 @@ const getState = ({ getStore, getActions, setStore }) => {
             selectedDoctor: null,
             selectedSpeciality: null,
             testimonials: null,
-            token: localStorage.getItem("token")
+            token: localStorage.getItem("token"),
+            doctorEmail: "",
+            patients: []
         },
         actions: {
             fetchSchedule: async () => {
@@ -370,30 +372,72 @@ const getState = ({ getStore, getActions, setStore }) => {
                 });
             },
 
-                createMedicalHistory: async (medicalHistory) => {
-                    const store = getStore();
-                    try {
-                        const response = await fetch(process.env.BACKEND_URL + "/api/medical-history", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bearer ${store.token}`
-                            },
-                            body: JSON.stringify(medicalHistory)
-                        });
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.Msg || "Error al crear el historial médico");
-                        }
-
-                        const data = await response.json();
-                        return data;
-                    } catch (error) {
-                        console.error("Error creando historial médico:", error);
-                        throw error;
+            fetchDoctorEmail: () => {
+                try {
+                    const email = localStorage.getItem('email');
+                    if (email) {
+                        setStore({ doctorEmail: email });
+                        console.log("Doctor email fetched:", email);
+                    } else {
+                        console.error("No doctor email found in localStorage");
                     }
+                } catch (error) {
+                    console.error("Error accessing localStorage:", error);
+                }
+            },
+            
+            fetchPatients: async () => {
+                try {
+                    const response = await fetch(process.env.BACKEND_URL + "/api/patients", {
+                        headers: {
+                            "Authorization": "Bearer " + localStorage.getItem("token")
+                        }
+                    });
+            
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            throw new Error("Unauthorized access - token may be invalid or expired");
+                        }
+                        throw new Error("Failed to fetch patients");
+                    }
+            
+                    const data = await response.json();
+                    if (Array.isArray(data)) {
+                        setStore({ patients: data });
+                        console.log("Patients fetched:", data);
+                    } else {
+                        throw new Error("Received invalid JSON data");
+                    }
+                } catch (error) {
+                    console.error("Error fetching patients:", error);
+                }
+            },
+            
+            createMedicalHistory: async (medicalHistory) => {
+                const store = getStore();
+                try {
+                    const response = await fetch(process.env.BACKEND_URL + "/api/medical-history", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${store.token}`
+                        },
+                        body: JSON.stringify(medicalHistory)
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.Msg || "Error al crear el historial médico");
+                    }
+            
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error("Error creando historial médico:", error);
+                    throw error;
                 }
             }
+            
+        }
     };
 };
 
