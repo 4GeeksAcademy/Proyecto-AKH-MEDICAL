@@ -47,7 +47,7 @@
     color: #333;
 }
 
-.doctor-specialty, .doctor-age, .doctor-description {
+.doctor-specialty, .doctor-age, .doctor-email {
     font-size: 16px;
     margin-bottom: 8px;
     color: #555;

@@ -117,7 +117,8 @@ class Testimonial(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "patient": {"first_name": self.patient.first_name, "last_name": self.patient.last_name, "img_url": self.patient.img_url},
+            # "patient": {"first_name": self.patient.first_name, "last_name": self.patient.last_name, "img_url": self.patient.img_url},
+            "patient": {"first_name": self.patient.first_name, "last_name": self.patient.last_name},
             "content": self.content,
             "count": self.count.value if self.count else None
         }

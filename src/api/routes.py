@@ -226,7 +226,7 @@ def get_specialities():
 def get_testimonials():
     testimonials = Testimonial.query.all()
     if not testimonials:
-        return jsonify({"Msg": "There aren't testimonials"}), 400
+        return jsonify({"Msg": "There aren't testimonials"}), 404
     results = list(map(lambda item: item.serialize(), testimonials))
     return jsonify(results), 200
 
