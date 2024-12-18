@@ -30,11 +30,20 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
             addApoint: async (newAppointment) => {
                 try {
+                    const store = getStore();
+                    
+                    console.log(getCurrentUser())
+                    let variables ={
+                        patient_id: newAppointment.patient_id,
+                        doctor_id: newAppointment.doctorId,
+                        date: newAppointment.date   
+                    }
+                    console.log({patient_id})
                     const response = await fetch(process.env.BACKEND_URL + "/api/appointments", {
                         method: 'POST',
-                        body: JSON.stringify(newAppointment),
+                        body: JSON.stringify(variables),
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("token")
                         },
                     });
 
@@ -59,8 +68,11 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
 
             validateAppoinment: (newAppointment) => {
-                const store = getStore();
-                const doctor = store.doctors.find(doc => doc.id === newAppointment.doctorID)
+                console.log({ newAppointment })
+				const store = getStore();
+				const doctor = store.doctors.find(doc => doc.id == newAppointment.doctorId)
+				console.log({ doctor })
+                
                 if (!doctor) {
                     return "Doctor not found";
                 }

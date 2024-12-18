@@ -79,9 +79,10 @@ def register():
 def manage_appointments(): 
     if request.method == 'POST': 
         data = request.json
+        user_id = get_jwt_identity()
         print("Received data:", data)
         # Verificar que se proporcionen todos los campos necesarios 
-        required_fields = ['user_id', 'doctor_id', 'date'] 
+        required_fields = ['doctor_id', 'date'] 
         missing_field = [field for field in required_fields if field not in data]
         if missing_field:
             print("Missing fields:", missing_field)
@@ -94,7 +95,7 @@ def manage_appointments():
         
         # Crear y agregar la nueva cita 
         new_appointment = Appointment( 
-            user_id=data['user_id'], 
+            patient_id=user_id, 
             doctor_id=data['doctor_id'], 
             date=data['date'] ) 
         db.session.add(new_appointment) 
@@ -381,3 +382,68 @@ def get_users_with_histories():
     except Exception as e:
         print(f"Error fetching users with histories: {e}")
         return jsonify({"error": "Failed to fetch users with histories"}), 500
+
+@api.route('/create-payment', methods=['POST'])
+def create_payment():
+    data = request.get_json()
+    doctor_id = data.get('doctor_id')
+    print("Received Doctor ID:", doctor_id)
+
+    doctor = Doctor.query.get(doctor_id)
+    if not doctor:
+        print("Doctor not found for ID:", doctor_id)
+        return jsonify({"error":"Doctor not found"}), 404
+    
+    print(f"Found Doctor: {doctor}")
+    price = doctor.medical_consultant_price
+
+    payment = paypalrestsdk.Payment({
+        "intent":"sale",
+        "payer": {
+            "payment_method":"paypal"
+        },
+        "redirect_urls": {
+            "return_url": "http://localhost:3000/payment/execute",
+            "cancel_url": "http://localhost:3000/payment/cancel"
+        },
+        "transactions":[{
+            "item_list":{
+                "items":[{
+                    "name": "appoinment",
+                    "sku": "001",
+                    "price": f"{price: .2f}",
+                    "currency":"USD",
+                    "quantity": 1
+                }]
+            },
+            "amount": {
+                "total": f"{price: .2f}",
+                "currency":"USD"
+            },
+            "description":"Payment for medical consultation."
+        }]
+    })
+    if payment.create():
+        print("Payment created successfully")
+        for link in payment.links:
+            if link.rel == "approval_url":
+                approval_url = link.href
+                return jsonify({"approval_url":approval_url})
+    else:
+        print(payment.error)
+        return jsonify({"error": payment.error}), 500    
+
+@api.route('/payment/execute', methods=['GET'])
+def execute_payment():
+    payment_id = request.args.get('paymentId')
+    payer_id = request.args.get('PayerID')
+
+    payment = paypalrestsdk.Payment.find(payment_id)
+
+    if payment.execute({"payer_id": payer_id}):
+        print("Payment executed successfully")
+        return jsonify({"message": "Payment executed successfully"})
+    else:
+        print(payment.error)
+        return jsonify({"error": payment.error}), 500
+

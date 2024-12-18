@@ -79,6 +79,7 @@ class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
+    date = db.Column (db.DateTime)
 
     doctor = db.relationship(Doctor)
     patient = db.relationship(User)

@@ -13,6 +13,11 @@ export const Schedule = () => {
     const [price, setPrice] = useState(null);
 
     useEffect(() => {
+        actions.getCurrentUser().then(userLoaded => { 
+            if (!userLoaded) { 
+                setErrorMessage("Failed to load user"); 
+            }
+        });
         fetchAppointments();
     }, []);
 
@@ -29,9 +34,14 @@ export const Schedule = () => {
     }, []);
     const addAppointment = async (e) => {
         e.preventDefault();
+        if (!store.user || !store.user.id){
+            setErrorMessage("User not authenticated");
+            return;
+        }
+
         const newAppointment = {
-            userId: store.user.id,
-            doctorId,
+            patient_id: store.user.id,
+            doctorId: parseInt(doctorId),
             date
         };
          console.log("Selected Doctor ID:", doctorId);
