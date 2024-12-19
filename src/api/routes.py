@@ -18,6 +18,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt, jwt_required 
 import json
 
+app = Flask(__name__)
+# Habilitar CORS solo para el origen específico
 
 api = Blueprint('api', __name__)
 CORS(api)
@@ -255,41 +257,36 @@ def create_testimonial():
 def create_medical_history():
     try:
         data = request.get_json()
-        user_id = get_jwt_identity()
+        doctor_email = data.get('doctor_email')
+        user_email = data.get('user_email')
+        observation = data.get('observation')
 
-        if 'user_email' not in data or 'doctor_email' not in data or 'observation' not in data:
-            return jsonify({"error": "Missing required fields"}), 400
+        current_user = get_jwt_identity()
 
-        doctor = Doctor.query.filter_by(user_id=user_id).first()
-        if not doctor:
-            return jsonify({"Msg": "Only doctors can create medical histories"}), 403
+        # Lógica para obtener el doctor y el paciente usando sus correos electrónicos
+        user = User.query.filter_by(email=doctor_email).first()
+        doctor = Doctor.query.filter_by(user_id=user.id).first()
+        patient = User.query.filter_by(email=user_email).first()
 
-        user_email = data['user_email']
-        user = User.query.filter_by(email=user_email).first()
-        if not user:
-            return jsonify({"Msg": "User not found"}), 404
+        print({"el doctor es: ", doctor})
+        print({"el paciente es: ", patient})
 
-        doctor_email = data['doctor_email']
-        doctor = User.query.filter_by(email=doctor_email).first()
-        if not doctor or doctor.role != RoleEnum.DOCTOR:
-            return jsonify({"Msg": "Doctor not found"}), 404
-
-        observation = data['observation']
+        if not doctor or not patient:
+            return jsonify({"msg": "Doctor or Patient not found"}), 404
 
         medical_history = MedicalHistory(
             doctor_id=doctor.id,
-            patient_id=user.id,
+            patient_id=patient.id,
             observation=observation
         )
 
         db.session.add(medical_history)
         db.session.commit()
-        return jsonify(medical_history.serialize()), 201
 
+        return jsonify(medical_history.serialize()), 201
     except Exception as e:
-        print(f"Error creating medical history: {e}")
-        return jsonify({"error": "Failed to create medical history"}), 500
-    
+        print(f"Error: {e}")
+        return jsonify({"msg": "Error al crear el historial médico"}), 500
     
 
 @api.route('/medical-history/doctors-by-speciality', methods=['GET'])
@@ -369,8 +366,11 @@ def get_doctor_medical_history():
 @jwt_required()
 def get_users_with_histories():
     try:
-        user_id = get_jwt_identity()
-        doctor = Doctor.query.filter_by(user_id=user_id).first()
+        token_data = get_jwt_identity()
+        print("TOKEN DATA: ", token_data['id'])
+        doctor = Doctor.query.filter_by(user_id=1).first()
+        print("VALOR DE DOCTOR: ", doctor)
+
 
         if not doctor:
             return jsonify({"Msg": "Access forbidden"}), 403
@@ -383,3 +383,41 @@ def get_users_with_histories():
     except Exception as e:
         print(f"Error fetching users with histories: {e}")
         return jsonify({"error": "Failed to fetch users with histories"}), 500
+
+
+@api.route('/medical-histories', methods=['GET'])
+@jwt_required()
+def get_medical_histories():
+    try:
+        token_data = get_jwt_identity()
+        user = json.loads(token_data)
+        patient = User.query.get(user["id"])
+
+        if not patient:
+            return jsonify({"msg": "Patient not found"}), 404
+
+        medical_histories = MedicalHistory.query.filter_by(patient_id=patient.id).all()
+
+        return jsonify([history.serialize() for history in medical_histories]), 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": "Error fetching medical histories"}), 500
+
+@api.route('/doctor-emails', methods=['GET'])
+@jwt_required()
+def get_doctor_emails_for_logged_in_user():
+    try:
+        token_data = get_jwt_identity()
+        user = json.loads(token_data)
+        patient = User.query.get(user["id"])
+
+        if not patient:
+            return jsonify({"msg": "Patient not found"}), 404
+
+        medical_histories = MedicalHistory.query.filter_by(patient_id=patient.id).all()
+        doctor_emails = [history.doctor.email for history in medical_histories]
+
+        return jsonify(doctor_emails), 200
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"msg": "Error fetching doctor emails"}), 500

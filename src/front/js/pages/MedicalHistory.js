@@ -4,7 +4,7 @@ import "../../styles/MedicalHistory.css";
 
 const MedicalHistory = () => {
     const navigate = useNavigate();
-    // traerme el rol de local storage 
+    // Traer el rol de local storage 
     let role = localStorage.getItem('role');
     return (
         <div className="doctor-container">
@@ -13,8 +13,8 @@ const MedicalHistory = () => {
                 {
                     role === 'DOCTOR' && (
                         <div>
-                            <button className="doctor-btn">View Patient Medical History</button>
-                            <br></br>
+                            <button className="doctor-btn" onClick={() => navigate("/view-patients")}>View Patient Medical History</button>
+                            <br />
                             <button className="doctor-btn" onClick={() => navigate("/create-medical-history")}>Create Medical History</button>
                         </div>
                     )
@@ -22,7 +22,7 @@ const MedicalHistory = () => {
                 {
                     role === 'PATIENT' && (
                         <div>
-                            <button className="doctor-btn">View My Medical History</button>
+                            <button className="doctor-btn" onClick={() => navigate("/view-medical-history")}>View My Medical History</button>
                         </div>
                     )
                 }

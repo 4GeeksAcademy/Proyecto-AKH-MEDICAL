@@ -1,0 +1,51 @@
+.medical-history-view-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.medical-history-view-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.medical-history-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.medical-history-item {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.medical-history-item p {
+    margin: 5px 0;
+}
+
+.medical-history-item p strong {
+    font-weight: bold;
+    color: #555;
+}
+
+@media (max-width: 600px) {
+    .medical-history-view-container {
+        padding: 10px;
+    }
+
+    .medical-history-view-title {
+        font-size: 20px;
+    }
+
+    .medical-history-item {
+        padding: 10px;
+    }
+}

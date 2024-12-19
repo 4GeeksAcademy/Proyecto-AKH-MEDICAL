@@ -1,4 +1,3 @@
-// Layout.js
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ScrollToTop from "./component/scrollToTop";
@@ -20,8 +19,12 @@ import StartHome from "./component/StartHome";
 import { Home } from "./pages/Home";
 import CreateTestimony from "./pages/CreateTestimony";
 import Testimonials from "./component/Testimonials";
-import MedicalHistory from "./pages/MedicalHistory";
+
 import CreateMedicalHistory from "./pages/CreateMedicalHistory";
+import ViewMedicalHistory from "./pages/ViewMedicalHistory";
+import ViewPatients from "./pages/ViewPatients";
+import PatientMedicalHistory from "./pages/PatientMedicalHistory";
+import MedicalHistory from "./pages/MedicalHistory";
 
 const Layout = () => {
     const basename = process.env.BASENAME || "";
@@ -44,9 +47,13 @@ const Layout = () => {
                         <Route element={<SingleLogin />} path="/login" />
                         <Route element={<SingleSignup />} path="/signup" />
                         <Route element={<CreateTestimony />} path="/testimonials" />
-                        <Route element={<MedicalHistory />} path="/medical-history" />
-                        <Route element={<CreateMedicalHistory />} path="/create-medical-history" />
+                        <Route path="/create-medical-history" element={<CreateMedicalHistory />} />
+                        <Route path="/view-patients" element={<ViewPatients />} />
+                        <Route path="/patient-history/:id" element={<PatientMedicalHistory />} />
+                        <Route path="/view-medical-history" element={<ViewMedicalHistory />} />
+                        <Route path="/medical-history" element={<MedicalHistory />} />
                         <Route element={<Home />} path="/" />
+                        <Route element={<StartHome />} path="/start-home" />
                     </Routes>
                     {/* <Footer /> */}
                 </ScrollToTop>
