@@ -29,8 +29,15 @@ import json
 
 
 api = Blueprint('api', __name__)
-CORS(api)
-
+CORS(api, resources={
+    r"/*": {
+        "origins": "*",  # En producción, especifica los dominios permitidos
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+        "expose_headers": ["Content-Range", "X-Content-Range"],
+        "supports_credentials": True
+    }
+})
 
 @api.route('/register', methods=['POST'])
 def register():
@@ -87,6 +94,7 @@ def register():
 
 @api.route('/appointments', methods=['GET', 'POST'])
 def manage_appointments(): 
+    print("metodo: "+request.method)
     if request.method == 'POST': 
         data = request.json
         user_id = get_jwt_identity()
@@ -105,7 +113,7 @@ def manage_appointments():
         
         # Crear y agregar la nueva cita 
         new_appointment = Appointment( 
-            #patient_id=user_id, 
+            patient_id=user_id, 
             doctor_id=data['doctor_id'], 
             date=data['date'] ) 
         db.session.add(new_appointment) 
