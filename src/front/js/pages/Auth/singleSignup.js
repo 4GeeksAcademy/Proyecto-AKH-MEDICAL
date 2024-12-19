@@ -3,22 +3,22 @@ import { Context } from "../../store/appContext";
 import { Navigate, useNavigate } from "react-router-dom";
 
 const SingleSignup = () => {
-    const { store, actions } = useContext(Context)
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [firstName, setFirstName] = useState("")
-    const [lastName, setLastName] = useState("")
-    const [country, setCountry] = useState("")
-    const [city, setCity] = useState("")
-    const [age, setAge] = useState("")
-    const [role, setRole] = useState("")
-    const [speciality, setSpeciality] = useState("")
-    const [timeAvailability, setTimeAvailability] = useState("")
-    const [medicalConsultantPrice, setMedicalConsultantPrice] = useState("")
-    const navigate = useNavigate()
+    const { actions } = useContext(Context); 
+    const navigate = useNavigate(); 
+    const [email, setEmail] = useState(""); 
+    const [password, setPassword] = useState(""); 
+    const [firstName, setFirstName] = useState(""); 
+    const [lastName, setLastName] = useState(""); 
+    const [country, setCountry] = useState(""); 
+    const [city, setCity] = useState(""); 
+    const [age, setAge] = useState(""); 
+    const [role, setRole] = useState(""); 
+    const [speciality, setSpeciality] = useState(""); 
+    const [timeAvailability, setTimeAvailability] = useState(""); 
+    const [medicalConsultantPrice, setMedicalConsultantPrice] = useState(""); 
+    const [errorMessage, setErrorMessage] = useState(""); 
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
+    const handleSubmit = async (e) => {e.preventDefault()
         console.log(email, password, firstName, lastName, country, city, age, role)
         if (email != "" && password != "" && firstName != "" && lastName != "" && country != "" && city != "" && age != "" && role != "") {
             let data = {
@@ -47,8 +47,7 @@ const SingleSignup = () => {
         else {
             alert("Faltan datos");
         }
-    }
-
+        }
     const paises = [
         "Afganistán", "Albania", "Alemania", "Andorra", "Angola", "Antigua y Barbuda",
         "Arabia Saudita", "Argelia", "Argentina", "Armenia", "Australia", "Austria",
@@ -148,6 +147,10 @@ const SingleSignup = () => {
                                         </div>
                                     </>
                                 )}
+                                <div className="col-md-12">
+                                    <label htmlFor="profilePicture" className="form-label">Profile Picture</label>
+                                    <input type="file" name="profile_picture" onChange={(e) => setFormData({ ...formData, profile_picture: e.target.files[0] })} className="form-control" id="profilePicture"/>
+                                </div>
                                 <div className="col-md-12 d-flex justify-content-center mt-4">
                                     <button type="submit" className="btn btn-outline-success ps-5 pe-5">Sign up</button>
                                 </div>

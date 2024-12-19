@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Context } from '../store/appContext';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export const Schedule = () => {
     const [appointments, setAppointments] = useState([]);
@@ -11,6 +12,7 @@ export const Schedule = () => {
     const [showPayPalButton, setShowPayPalButton] = useState(false);
     const [appointmentId, setAppointmentId] = useState(null);
     const [price, setPrice] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchAppointments();
@@ -29,12 +31,16 @@ export const Schedule = () => {
     }, []);
     const addAppointment = async (e) => {
         e.preventDefault();
+        if (!store.user || !store.user.id){
+            setErrorMessage("User not authenticated");
+            return;
+        }
+
         const newAppointment = {
-            userId: store.user.id,
-            doctorId,
+            //patient_id: store.user.id,
+            doctorId: parseInt(doctorId),
             date
         };
-         console.log("Selected Doctor ID:", doctorId);
 
         const validationError = actions.validateAppoinment(newAppointment);
         if (validationError) {
@@ -45,7 +51,8 @@ export const Schedule = () => {
         const data = await actions.addApoint(newAppointment);
         if (data) {
             setAppointments([...appointments, data]);
-            const paymentResult = await actions.initiatePayment(data.id, doctorId);
+            const paymentResult = 
+            await actions.initiatePayment(data.id, doctorId);
             if (paymentResult.status === 'success') {
                 setShowPayPalButton(true);
                 setAppointmentId(data.id);

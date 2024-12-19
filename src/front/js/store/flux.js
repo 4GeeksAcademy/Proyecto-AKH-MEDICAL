@@ -32,11 +32,19 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
             addApoint: async (newAppointment) => {
                 try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/appointments", {
+                    const store = getStore();
+                    
+                    let variables ={
+                        //patient_id: newAppointment.patient_id,
+                        doctor_id: newAppointment.doctorId,
+                        date: newAppointment.date   
+                    }
+                    console.log(store.user)
+                    const response = await fetch(process.env.BACKEND_URL + "/api/appointments", { mode: 'no-cors'}, {
                         method: 'POST',
-                        body: JSON.stringify(newAppointment),
+                        body: JSON.stringify(variables),
                         headers: {
-                            "Content-Type": "application/json"
+                            "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("token")
                         },
                     });
 
@@ -55,14 +63,17 @@ const getState = ({ getStore, getActions, setStore }) => {
                     setStore({ appointments: [...getStore().appointments, data] })
                     return data;
                 } catch (error) {
-                    console.log(error.message || 'Error adding appointment. Please try again.');
+                    console.log( 'Error adding appointment. Please try again.');
                     return null;
                 }
             },
 
             validateAppoinment: (newAppointment) => {
-                const store = getStore();
-                const doctor = store.doctors.find(doc => doc.id === newAppointment.doctorID)
+                console.log({ newAppointment })
+				const store = getStore();
+				const doctor = store.doctors.find(doc => doc.id == newAppointment.doctorId)
+				console.log({ doctor })
+                
                 if (!doctor) {
                     return "Doctor not found";
                 }
@@ -84,13 +95,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             initiatePayment: async (appointmentId, doctorID) => {
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, { mode: 'no-cors'}, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json', 'Authorization': 'Bearer A21AAFs9YK9gWL6Vl6AqeoPtm-nf6JmtPOwAc8kfzHVdeigPEhrOJLCvbeIt3fJ4NKvyZo_iWic7sC3RIQrVUdu7igagcuMVQ',
                         },
                         body: JSON.stringify({ appointmentId, doctor_id: doctorID })
-                    });
+                    }); response = requests.get('https://api-m.sandbox.paypal.com/v2/payments/authorizations/0T620041CK889853A', headers=headers)
 
                     const result = await response.json();
                     if (result.approval_url) {
@@ -105,7 +116,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
             updateAppointmentStatus: async (appointmentId, status) => {
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}/status`, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}/status`, { mode: 'no-cors'}, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
@@ -126,7 +137,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
             cancelAppoinment: async (appointmentId) => {
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}`, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}`,{ mode: 'no-cors'}, {
                         method: "DELETE"
                     });
 
@@ -219,15 +230,21 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            sign_up: async (data) => {
-                console.log(data);
+            sign_up: async (formData) => {
+                console.log(formData);
                 try {
-                    await fetch(process.env.BACKEND_URL + "/api/register", {
+                    const response = await fetch(process.env.BACKEND_URL + "/api/register", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(data)
+                        body: formData
                     });
-                    return true;
+                    if (!response.ok) { 
+                        const errorData = await response.json(); 
+                        throw new Error(errorData.message || 'Error registering user'); 
+                    } 
+                    const data = await response.json(); 
+                    setStore({ user: data }); 
+                    return data;
                 } catch (error) {
                     console.log("Error loading message from backend", error);
                     return false;
