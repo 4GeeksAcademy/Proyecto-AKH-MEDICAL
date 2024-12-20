@@ -1,18 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Context } from '../store/appContext';
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { Navigate, useNavigate } from "react-router-dom";
 
 export const Schedule = () => {
-    const [appointments, setAppointments] = useState([]);
     const { store, actions } = useContext(Context);
-    const [doctorId, setDoctorId] = useState('');
-    const [date, setDate] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const [showPayPalButton, setShowPayPalButton] = useState(false);
-    const [appointmentId, setAppointmentId] = useState(null);
-    const [price, setPrice] = useState(null);
-    const navigate = useNavigate();
+    const [doctor_id, setDoctorId] = useState("");
+    const [date, setDate] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
 
     useEffect(() => {
         fetchAppointments();
@@ -61,20 +55,32 @@ export const Schedule = () => {
                 window.location.href = paymentResult.approval_url;
                 startTimer(data.id);
             } else {
-                setErrorMessage(paymentResult.message);
+                console.error('Element with class "some-class" not found');
             }
+        });        
+        return () =>{
+            document.body.removeChild(script);
         }
+        
+    },[]);
 
-        setDoctorId('');
-        setDate('');
-        setErrorMessage('');
-    };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError("");
 
-    const startTimer = (appointmentId) => {
-        setTimeout(() => {
-            actions.cancelAppoinment(appointmentId);
-            setErrorMessage("Payment time expired. Appointment was cancelled.");
-        }, 15 * 60 * 1000);
+        try {
+            // Crear cita y obtener la URL de PayPal
+            const response = await actions.createAppointment({ doctor_id, date });
+            if (response.approval_url) {
+                // Redirigir a PayPal
+                window.location.href = response.approval_url;
+            }
+        } catch (err) {
+            setError("Error scheduling appointment. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -135,7 +141,10 @@ export const Schedule = () => {
                         ))}
                     </ul>
                 </div>
-            </div>
+                <button type="submit" className="btn btn-primary" disabled={loading}>
+                    {loading ? "Scheduling..." : "Schedule Appointment"}
+                </button>
+            </form>
         </div>
     );
 };

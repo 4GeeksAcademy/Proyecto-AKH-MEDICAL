@@ -128,15 +128,14 @@ const getState = ({ getStore, getActions, setStore }) => {
                         body: JSON.stringify({ status })
                     });
                     if (!response.ok) {
-                        throw new Error('Error updating appointment status');
+                        const errorData = await response.json();
+                        throw new Error(errorData.msg || "Error scheduling appointment");
                     }
-                    const updatedAppointments = getStore().appointments.map(app =>
-                        app.id === appointmentId ? { ...app, status } : app);
-                    setStore({ appointments: updatedAppointments });
-                    return true;
-                } catch (error) {
-                    console.error('Error updating appointment status:', error);
-                    return false;
+                    const appointment = await response.json();
+                    return appointment;
+                } catch (err) {
+                    console.error("Error creating appointment:", err);
+                    throw err;
                 }
             },
             cancelAppointment: async (appointmentId) => {
