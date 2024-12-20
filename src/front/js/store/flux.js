@@ -17,119 +17,25 @@ const getState = ({ getStore, getActions, setStore }) => {
             patients: []
         },
         actions: {
-            fetchSchedule: async () => {
+            createAppointment: async (appointmentData) => {
                 try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/appointments");
-                    if (!response.ok) {
-                        throw new Error('Error fetching appointments');
-                    }
-                    const data = await response.json();
-                    setStore({ appointments: data });
-                    return data;
-                } catch (error) {
-                    setErrorMessage('error en flux');
-                }
-            },
-            addApoint: async (newAppointment) => {
-                try {
-                    const store = getStore();
-
-                    let variables = {
-                        patient_id: newAppointment.patient_id,
-                        doctor_id: newAppointment.doctorId,
-                        date: newAppointment.date
-                    }
-                    console.log(store.user)
-                    variables = JSON.stringify(variables)
-                    const response = await fetch(process.env.BACKEND_URL + "/api/appointments", {
-                        method: 'POST',
-                        body: variables,
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments`, {
+                        method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": "Bearer " + localStorage.getItem("token"),
+                            Authorization: `Bearer ${localStorage.getItem("token")}`
                         },
-                    });
-                    console.log(response)
-                    if (!response.ok) { 
-                        const errorData = await response.json(); 
-                        console.error("Error response data:", errorData); 
-                        throw new Error(errorData.message || 'Error adding appointment'); 
-                    }
-                    const data = await response.json();
-                    setStore({ appointments: [...getStore().appointments, data] })
-                    return data;
-                } catch (error) {
-                    console.log(error)
-                    console.log('Error adding appointment. Please try again.');
-                    return null;
-                }
-            },
-
-            validateAppoinment: (newAppointment) => {
-                console.log({ newAppointment })
-                const store = getStore();
-                const doctor = store.doctors.find(doc => doc.id == newAppointment.doctorId)
-                console.log({ doctor })
-
-                if (!doctor) {
-                    return "Doctor not found";
-                }
-                const [startTime, endTime] = doctor.time_availability.split('-').map(time => new Date('1970-01-01T${time.trim()}:00'));
-                const appointmentTime = new Date(newAppointment.date);
-                if (appointmentTime < startTime || appointmentTime > endTime) {
-                    return "Appoinment time is outside the doctor's availability";
-                }
-
-                const conflictingAppoinment = store.appointments.find(app => {
-                    const appTime = new Date(app.date);
-                    return app.doctorID === newAppointment.doctorID && Math.abs(appTime - appointmentTime) < 30 * 60 * 1000;
-                });
-                if (conflictingAppoinment) {
-                    return 'There is already an appoinment scheduled within 30 minutes of the requested time';
-                }
-                return null;
-            },
-
-            initiatePayment: async (appointmentId, doctorID) => {
-                try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, { mode: 'no-cors' }, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json', 'Authorization': 'Bearer A21AAFs9YK9gWL6Vl6AqeoPtm-nf6JmtPOwAc8kfzHVdeigPEhrOJLCvbeIt3fJ4NKvyZo_iWic7sC3RIQrVUdu7igagcuMVQ',
-                        },
-                        body: JSON.stringify({ appointmentId, doctor_id: doctorID })
-                    }); response = requests.get('https://api-m.sandbox.paypal.com/v2/payments/authorizations/0T620041CK889853A', headers = headers)
-
-                    const result = await response.json();
-                    if (result.approval_url) {
-                        return { status: 'success', approval_url: result.approval_url, price: result.price };
-                    } else {
-                        throw new Error("Failed to create PayPal payment.");
-                    }
-                } catch (error) {
-                    console.error("Error initiating payment: ", error);
-                    return { status: "error", message: error.message };
-                }
-            },
-            updateAppointmentStatus: async (appointmentId, status) => {
-                try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}/status`, { mode: 'no-cors' }, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ status })
+                        body: JSON.stringify(appointmentData),
                     });
                     if (!response.ok) {
-                        throw new Error('Error updating appointment status');
+                        const errorData = await response.json();
+                        throw new Error(errorData.msg || "Error scheduling appointment");
                     }
-                    const updatedAppointments = getStore().appointments.map(app =>
-                        app.id === appointmentId ? { ...app, status } : app);
-                    setStore({ appointments: updatedAppointments });
-                    return true;
-                } catch (error) {
-                    console.error('Error updating appointment status:', error);
-                    return false;
+                    const appointment = await response.json();
+                    return appointment;
+                } catch (err) {
+                    console.error("Error creating appointment:", err);
+                    throw err;
                 }
             },
             cancelAppoinment: async (appointmentId) => {

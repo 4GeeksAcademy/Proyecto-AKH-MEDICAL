@@ -57,7 +57,7 @@ export const Navbar = () => {
 						)
 						
 						}
-						
+						<button className="btn btn-outline-danger mx-3" onClick={() => actions.logOut()}>LogOut</button>
 					</div>
 				</div>
 				<div className="container-fluid navbar-buttons d-flex justify-content-start gap-3 p-2 background">

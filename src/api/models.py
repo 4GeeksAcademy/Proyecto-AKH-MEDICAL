@@ -91,9 +91,9 @@ class Appointment(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "patient_id": self.patient_id.serialize() if self.patient_id else None,
-            "doctor_id": self.doctor_id.serialize() if self.doctor_id else None,
-            "date": self.date.serialize() if self.date else None
+            "patient_id": self.patient.id if self.patient else None,
+            "doctor_id": self.doctor.id if self.doctor else None,
+            "date": self.date.isoformat() if self.date else None
         }
 
 

@@ -96,7 +96,7 @@ const SingleSignup = () => {
                             </div>
                             <div className="col-md-4">
                                 <label htmlFor="inputPassword4" className="form-label">Password</label>
-                                <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="1234" className="form-control" id="inputPassword4" />
+                                <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="**********" className="form-control" id="inputPassword4" />
                             </div>
                             <div className="col-md-2">
                                 <label htmlFor="role" className="form-label">Role</label>
