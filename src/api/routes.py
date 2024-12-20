@@ -515,11 +515,22 @@ def user_profile_picture_get():
         return jsonify({"msg": "Error fetching profile picture"})
 @api.after_request
 def add_csp(response):
-    csp_policy = ( 
-        "default-src 'self'; " 
-        "img-src 'self' https://*.googleusercontent.com/ https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn https://ak1s.abmr.net https://ak1s.mathtag.com https://akamai.mathtag.com https://ak1.abmr.net https://www.facebook.com https://www.google-analytics.com https://px.ads.linkedin.com https://googleads.g.doubleclick.net https://www.google.co.cr https://www.google.com  data:; "
-        "script-src 'self' https://www.paypal.com https://www.google.com https://www.googleadservices.com https://*.paypal.com; " 
-        "style-src 'self' 'unsafe-inline'; " 
-        "frame-src 'self' https://*.paypal.com https://www.google.com https://bid.g.doubleclick.net;" )
+    csp_policy = (
+        "default-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn 'unsafe-inline'; "
+        "script-src 'nonce-mSstq1H4Dsed1UVZcI574NjxbswCo1J+lm02A01WdjHogzEN' 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn 'unsafe-inline'; "
+        "img-src 'self' https://*.googleusercontent.com/ https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn https://ak1s.abmr.net https://ak1s.mathtag.com https://akamai.mathtag.com https://ak1.abmr.net https://www.facebook.com https://www.google-analytics.com https://px.ads.linkedin.com https://googleads.g.doubleclick.net https://www.google.co.cr https://www.google.com https://www.googleadservices.com https://*.doubleclick.net data:; "
+        "connect-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn https://192.55.233.1 'unsafe-inline' https://browser-intake-us5-datadoghq.com https://*.qualtrics.com https://www.google.com https://www.googleadservices.com https://www.google-analytics.com https://googleads.g.doubleclick.net; "
+        "object-src 'none'; "
+        "media-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn; "
+        "font-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn; "
+        "frame-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn https://smartlock.google.com https://*.qualtrics.com https://bid.g.doubleclick.net https://*.doubleclick.net; "
+        "base-uri 'self' https://*.paypal.com https://*.paypal.cn; "
+        "worker-src 'self' blob: https://*.paypal.com; "
+        "upgrade-insecure-requests;"
+    )
     response.headers['Content-Security-Policy'] = csp_policy
     return response
+
+
+
+

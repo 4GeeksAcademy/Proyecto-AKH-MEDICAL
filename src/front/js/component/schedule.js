@@ -16,9 +16,18 @@ export const Schedule = () => {
             window.paypal.Buttons().render('#paypal-button-container');
         };
         document.body.appendChild(script);
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const element = document.querySelector('.some-class');
+            if (element) {
+                element.classList.add('new-class');
+            } else {
+                console.error('Element with class "some-class" not found');
+            }
+        });        
         return () =>{
             document.body.removeChild(script);
         }
+        
     },[]);
 
     const handleSubmit = async (e) => {
