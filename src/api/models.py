@@ -40,7 +40,8 @@ class User(db.Model):
             "country": self.country,
             "city": self.city,
             "age": self.age,
-            "role": self.role.value
+            "role": self.role.value,
+            "img_url": self.img_url,
         }
 
     def serialize_doctors(self):

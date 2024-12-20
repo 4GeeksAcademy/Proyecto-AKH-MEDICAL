@@ -472,7 +472,7 @@ def execute_payment():
 def user_picture():
     try:
         user_id = get_jwt_identity()
-        user = User.query.filter_by(user_id=user_id).first()
+        user = User.query.filter_by(id=user_id).first()
         if user is None:
             return jsonify({"message": "User not found"}), 400
 
@@ -480,13 +480,11 @@ def user_picture():
         temp = NamedTemporaryFile(delete=False)
         file.saved(temp.name)
         extension = file.filename.rsplit('.', 1)[1].lower()
-        filename = "usersPictures/" + str(user_id) + "." + extension
+        filename = f"usersPictures/{user_id}.{extension}"
         upload_result=cloudinary.uploader.upload(temp.name, public_id=filename, asset_folder="userPicture")
         print(upload_result)
         asset_id-upload_result["public_id"]
-        user = User(
-        img_url= img_url
-    )
+        user.img_url = asset_id
         user.img_url= asset_id
         db.session.add(user)
         db.session.commit()
@@ -501,7 +499,11 @@ def user_profile_picture_get():
     user=Users.query.get(user_id)
     if user is None:
         return jsonify({"msg": "Usuario no encontrado"}), 404
-    print(user.img_url)
-    image_info=cloudinary.api.resource(user.img_url)
-    print(image_info)
-    return jsonify({"url":image_info["secure_url"]})
+    if not user.img_url:
+        return jsonify({"msg": "User has no profile picture"}), 404
+    try:
+        image_info = cloudinary.api.resource(user.img_url)
+        return jsonify({"url":image_info["secure_url"]})
+    except Exception as ex:
+        print(ex)
+        return jsonify({"msg": "Error fetching profile picture"})
