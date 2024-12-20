@@ -12,6 +12,8 @@ import os
 import logging
 import paypalrestsdk
 import cloudinary
+import tempfile
+
 
 paypalrestsdk.configure({ 
     "mode": os.getenv("PAYPAL_MODE", "sandbox"),
@@ -483,13 +485,13 @@ def user_picture():
             return jsonify({"message": "User not found"}), 400
 
         file = request.files["profilePicture"]
-        temp = NamedTemporaryFile(delete=False)
+        temp = tempfile.NamedTemporaryFile(delete=False)
         file.saved(temp.name)
         extension = file.filename.rsplit('.', 1)[1].lower()
         filename = f"usersPictures/{user_id}.{extension}"
         upload_result=cloudinary.uploader.upload(temp.name, public_id=filename, asset_folder="userPicture")
         print(upload_result)
-        asset_id-upload_result["public_id"]
+        asset_id=upload_result["public_id"]
         user.img_url = asset_id
         user.img_url= asset_id
         db.session.add(user)
@@ -502,7 +504,7 @@ def user_picture():
 @jwt_required()
 def user_profile_picture_get():
     user_id = get_jwt_identity()
-    user=Users.query.get(user_id)
+    user=User.query.get(user_id)
     if user is None:
         return jsonify({"msg": "Usuario no encontrado"}), 404
     if not user.img_url:
