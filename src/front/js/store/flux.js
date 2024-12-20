@@ -152,96 +152,93 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
 
             getLogin: async (email, password) => {
-                try {
-                    const resp = await fetch(process.env.BACKEND_URL + "/api/login", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ email, password })
-                    });
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        console.log(data);
+				try {
+					// fetching data from the backend
+					const resp = await fetch(process.env.BACKEND_URL + "/api/login", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							email: email,
+							password: password
+						})
+					})
+					if (resp.ok) {
+						const data = await resp.json()
+						console.log(data)
+						localStorage.setItem("token", data.access_token)
+						setStore({ user: data.user, auth: true })
+						return true;
+					}
+					return false
+				} catch (error) {
+					console.log("Error loading message from backend", error)
+					return false
+				}
+			},
+			logOut: async () => {
+				try {
+					const response = await fetch(process.env.BACKEND_URL + "/api/logout", {
+						method: "POST",
+						headers: {
+							"Authorization": "Bearer " + localStorage.getItem("token")
+						},
+					});
 
-                        localStorage.setItem("token", data.access_token);
-                        localStorage.setItem("role", data.user ? data.user.role : "DOCTOR");
-                        localStorage.setItem("email", email);
+					if (response.ok) {
+						const result = await response.json();
+						localStorage.removeItem("token")
+						setStore({ user: false, auth: false })
+						return true;
+					} else {
+						console.log("Failed to logout user:", response.status);
+						return false;
+					}
+				} catch (error) {
+					console.log("Error logout user:", error);
+					return false;
+				}
+			},
 
-                        setStore({ user: data.user || data.doctor, auth: true });
-                        return true;
-                    }
-                    return false;
-                } catch (error) {
-                    console.log("Error loading message from backend", error);
-                    return false;
-                }
-            },
+			getCurrentUser: async () => {
+				try {
+					const response = await fetch(process.env.BACKEND_URL + "/api/current_user", {
+						method: "GET",
+						headers: {
+							"Authorization": "Bearer " + localStorage.getItem("token")
+						},
+					});
 
-            logOut: async () => {
-                try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/logout", {
-                        method: "POST",
-                        headers: {
-                            "Authorization": "Bearer " + localStorage.getItem("token")
-                        },
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        localStorage.removeItem("token");
-                        localStorage.removeItem("email");  // Eliminar el email del almacenamiento local al cerrar sesión
-                        localStorage.removeItem("role");  // Eliminar el rol del almacenamiento local al cerrar sesión
-                        setStore({ user: false, auth: false });
-                        return true;
-                    } else {
-                        console.log("Failed to logout user:", response.status);
-                        return false;
-                    }
-                } catch (error) {
-                    console.log("Error logout user:", error);
-                    return false;
-                }
-            },
-
-            getCurrentUser: async () => {
-                try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/current_user", {
-                        method: "GET",
-                        headers: {
-                            "Authorization": "Bearer " + localStorage.getItem("token")
-                        },
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        setStore({ user: result, auth: true });
-                        return true;
-                    } else {
-                        console.log("Failed get current user:", response.status);
-                        setStore({ user: false, auth: false });
-                        return false;
-                    }
-                } catch (error) {
-                    console.log("Error get current user:", error);
-                    setStore({ user: false, auth: false });
-                    return false;
-                }
-            },
+					if (response.ok) {
+						const result = await response.json();
+						setStore({ user: result, auth: true })
+						return true;
+					} else {
+						console.log("Failed get current user:", response.status);
+						setStore({ user: false, auth: false })
+						return false;
+					}
+				} catch (error) {
+					console.log("Error get current user:", error);
+					setStore({ user: false, auth: false })
+					return false;
+				}
+			},
 
             sign_up: async (data) => {
-                console.log(data)
-                try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/register", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(data)
-                    });
-                    return true;
-                }
-                catch (error) {
-                    console.log("Error loading message from backend", error);
-                    return false;
-                }
-            },
+				console.log(data)
+				try {
+					// fetching data from the backend
+					await fetch(process.env.BACKEND_URL + "/api/register", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify(data)
+					})
+					return true;
+				} catch (error) {
+					console.log("Error loading message from backend", error)
+					return false;
+				}
+			},
 
             createTestimony: async (data) => {
                 console.log(data);
@@ -446,8 +443,8 @@ const getState = ({ getStore, getActions, setStore }) => {
             updateProfilePicture: async (formData) => { 
                 try { 
                     const store = getStore(); 
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/profilepic`, { 
-                        method: 'PUT', 
+                    const response = await fetch(process.env.BACKEND_URL +"/api/profilepic", { 
+                        method: 'POST', 
                         body: formData, 
                         headers: { "Authorization": "Bearer " + store.token 
                         } 

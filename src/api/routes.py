@@ -91,6 +91,7 @@ def register():
         db.session.commit()
         return jsonify(doctor.serialize())
     return jsonify(user.serialize())
+    
 
 @api.route('/appointments', methods=['POST'])
 @jwt_required()
@@ -137,11 +138,11 @@ def get_appoinments():
 def signup_user():
     try:
         body = request.get_json()
-        exist_user = User.query.filter_by(email=body["email"]).first()
+        exist_user=User.query.filter_by(email=body["email"]).first()
         if exist_user:
             return jsonify({"Msg": "User exists already"}), 404
-        pw_hash = current_app.bcrypt.generate_password_hash(body["password"]).decode("utf-8")
-        new_user = User(
+        pw_hash=current_app.bcrypt.generate_password_hash(body["password"]).decode("utf-8")
+        new_user=User(
             email=body["email"],
             password=pw_hash,
             first_name=body["first_name"],
@@ -163,11 +164,11 @@ def signup_user():
 def signup_medical():
     try:
         body = request.get_json()
-        user_id = get_jwt_identity()
-        exist_user = User.query.get(user_id)
+        user_id=get_jwt_identity()
+        exist_user=User.query.get(user_id)
         if not exist_user:
             return jsonify({"Msg": "User not found"}), 404
-        new_medical = Doctor(
+        new_medical=Doctor(
             user_id=user_id,
             speciality= body["speciality"],
             university= body["university"],
@@ -176,6 +177,7 @@ def signup_medical():
         )
         db.session.add(new_medical)
         db.session.commit()
+
         return jsonify(new_medical.serialize()), 201
     except Exception as e:
         return jsonify({"Error": "Unexpected error"}), 500
@@ -475,7 +477,7 @@ def execute_payment():
         print(payment.error)
         return jsonify({"error": payment.error}), 500
 
-@api.route("/profilepic", methods=["PUT"])
+@api.route("/profilepic", methods=["POST"])
 @jwt_required()
 def user_picture():
     try:
