@@ -42,20 +42,7 @@ export const Navbar = () => {
 									<button className="btn btn-outline-success btn-signup">SignUp</button>
 								</Link>
 							</div>
-						) : ( 
-						<div className="dropdown"> 
-						<button className="btn btn-outline-success dropdown-toggle" type="button" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
-							<img src={store.user.img_url || "default-profile.png"} alt="Profile" className="rounded-circle" width="30" height="30" /> 
-							</button> 
-							<div className="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown"> 
-								<input type="file" onChange={handleFileChange} className="dropdown-item" /> 
-								<button onClick={handleUpload} className="dropdown-item">Upload</button> 
-								<div className="dropdown-divider"></div> 
-								<button className="dropdown-item" onClick={() => actions.logOut()}>Log Out</button> 
-								</div> 
-							</div> 
-						)
-						
+						) : <button className="dropdown-item" onClick={() => actions.logOut()}>Log Out</button> 	
 						}
 						<button className="btn btn-outline-danger mx-3" onClick={() => actions.logOut()}>LogOut</button>
 					</div>
