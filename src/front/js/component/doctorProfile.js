@@ -35,7 +35,7 @@ export const DoctorProfile = () => {
                     <p className="doctor-specialty"><strong>Especialidad:</strong> {doctor.speciality}</p>
                     <p className="doctor-age"><strong>Edad:</strong> {doctor.info.age} años</p>
                     <p className="doctor-email"><strong>Email:</strong> {doctor.info.email}</p>
-                    <Link to={`/appointment/${doctor.id}`}>
+                    <Link to={`/appointment`}>
                         <button className="btn btn-primary schedule-btn">
                             <i className="fas fa-calendar-alt schedule-btn"></i> Agendar cita
                         </button>

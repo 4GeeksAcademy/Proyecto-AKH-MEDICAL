@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
 import { Link } from "react-router-dom";
 import { HashLink } from 'react-router-hash-link';
@@ -7,6 +7,23 @@ import "../../styles/navbar.css";
 
 export const Navbar = () => {
 	const { store, actions } = useContext(Context);
+	const [profilePicture, setProfilePicture] = useState(null);
+
+	const handleFileChange = (e) => {
+		setProfilePicture(e.target.files[0]);
+	}
+
+	const handleUpload = async () => {
+		const formData = new FormData();
+		formData.append("profilePicture", profilePicture);
+
+		const response = await actions.updateProfilePicture(formData);
+		if (response) {
+			alert("Profile picture updated successfully!");
+		} else {
+			alert("Failed to update profile picture.");
+		}
+	};
 
 	return (
 		<div className="ps-0 pe-0">
@@ -25,7 +42,21 @@ export const Navbar = () => {
 									<button className="btn btn-outline-success btn-signup">SignUp</button>
 								</Link>
 							</div>
-						) : <button className="btn btn-outline-danger mx-3" style={{ borderRadius: "24px", padding: "12px", paddingLeft: "20px", paddingRight: "20px" }} onClick={() => actions.logOut()}>Log Out</button>}
+						) : ( 
+						<div className="dropdown"> 
+						<button className="btn btn-outline-success dropdown-toggle" type="button" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> 
+							<img src={store.user.img_url || "default-profile.png"} alt="Profile" className="rounded-circle" width="30" height="30" /> 
+							</button> 
+							<div className="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown"> 
+								<input type="file" onChange={handleFileChange} className="dropdown-item" /> 
+								<button onClick={handleUpload} className="dropdown-item">Upload</button> 
+								<div className="dropdown-divider"></div> 
+								<Link className="dropdown-item" to="/profile">Profile</Link> 
+								<button className="dropdown-item" onClick={() => actions.logOut()}>Log Out</button> 
+								</div> 
+							</div> 
+						)}
+						<button className="btn btn-outline-danger mx-3" style={{ borderRadius: "24px", padding: "12px", paddingLeft: "20px", paddingRight: "20px" }} onClick={() => actions.logOut()}>Log Out</button>
 					</div>
 				</div>
 				<div className="container-fluid navbar-buttons d-flex justify-content-start gap-3 p-2 background">

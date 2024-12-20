@@ -33,47 +33,44 @@ const getState = ({ getStore, getActions, setStore }) => {
             addApoint: async (newAppointment) => {
                 try {
                     const store = getStore();
-                    
-                    let variables ={
-                        //patient_id: newAppointment.patient_id,
+
+                    let variables = {
+                        patient_id: newAppointment.patient_id,
                         doctor_id: newAppointment.doctorId,
-                        date: newAppointment.date   
+                        date: newAppointment.date
                     }
                     console.log(store.user)
-                    const response = await fetch(process.env.BACKEND_URL + "/api/appointments", { mode: 'no-cors'}, {
+                    variables = JSON.stringify(variables)
+                    const response = await fetch(process.env.BACKEND_URL + "/api/appointments", {
                         method: 'POST',
-                        body: JSON.stringify(variables),
+                        body: variables,
                         headers: {
-                            "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("token")
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + localStorage.getItem("token"),
                         },
                     });
-
-                    const contentType = response.headers.get("content-type");
-                    if (!response.ok) {
-                        if (contentType && contentType.includes("application/json")) {
-                            const errorData = await response.json();
-                            console.error("Error response data:", errorData);
-                            throw new Error(errorData.message || 'Error adding appointment');
-                        } else {
-                            throw new Error('Unexpected error occurred.');
-                        }
+                    console.log(response)
+                    if (!response.ok) { 
+                        const errorData = await response.json(); 
+                        console.error("Error response data:", errorData); 
+                        throw new Error(errorData.message || 'Error adding appointment'); 
                     }
-
                     const data = await response.json();
                     setStore({ appointments: [...getStore().appointments, data] })
                     return data;
                 } catch (error) {
-                    console.log( 'Error adding appointment. Please try again.');
+                    console.log(error)
+                    console.log('Error adding appointment. Please try again.');
                     return null;
                 }
             },
 
             validateAppoinment: (newAppointment) => {
                 console.log({ newAppointment })
-				const store = getStore();
-				const doctor = store.doctors.find(doc => doc.id == newAppointment.doctorId)
-				console.log({ doctor })
-                
+                const store = getStore();
+                const doctor = store.doctors.find(doc => doc.id == newAppointment.doctorId)
+                console.log({ doctor })
+
                 if (!doctor) {
                     return "Doctor not found";
                 }
@@ -95,13 +92,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 
             initiatePayment: async (appointmentId, doctorID) => {
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, { mode: 'no-cors'}, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, { mode: 'no-cors' }, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json', 'Authorization': 'Bearer A21AAFs9YK9gWL6Vl6AqeoPtm-nf6JmtPOwAc8kfzHVdeigPEhrOJLCvbeIt3fJ4NKvyZo_iWic7sC3RIQrVUdu7igagcuMVQ',
                         },
                         body: JSON.stringify({ appointmentId, doctor_id: doctorID })
-                    }); response = requests.get('https://api-m.sandbox.paypal.com/v2/payments/authorizations/0T620041CK889853A', headers=headers)
+                    }); response = requests.get('https://api-m.sandbox.paypal.com/v2/payments/authorizations/0T620041CK889853A', headers = headers)
 
                     const result = await response.json();
                     if (result.approval_url) {
@@ -116,7 +113,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
             updateAppointmentStatus: async (appointmentId, status) => {
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}/status`, { mode: 'no-cors'}, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}/status`, { mode: 'no-cors' }, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
@@ -137,7 +134,7 @@ const getState = ({ getStore, getActions, setStore }) => {
             },
             cancelAppoinment: async (appointmentId) => {
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}`,{ mode: 'no-cors'}, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}`, { mode: 'no-cors' }, {
                         method: "DELETE"
                     });
 
@@ -230,22 +227,17 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
-            sign_up: async (formData) => {
-                console.log(formData);
+            sign_up: async (data) => {
+                console.log(data)
                 try {
                     const response = await fetch(process.env.BACKEND_URL + "/api/register", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: formData
+                        body: JSON.stringify(data)
                     });
-                    if (!response.ok) { 
-                        const errorData = await response.json(); 
-                        throw new Error(errorData.message || 'Error registering user'); 
-                    } 
-                    const data = await response.json(); 
-                    setStore({ user: data }); 
-                    return data;
-                } catch (error) {
+                    return true;
+                }
+                catch (error) {
                     console.log("Error loading message from backend", error);
                     return false;
                 }
@@ -255,23 +247,23 @@ const getState = ({ getStore, getActions, setStore }) => {
                 console.log(data);
                 const store = getStore();
                 // try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/testimonial", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("token")
-                        },
-                        body: JSON.stringify(data)
-                    });
+                const response = await fetch(process.env.BACKEND_URL + "/api/testimonial", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json", "Authorization": "Bearer " + localStorage.getItem("token")
+                    },
+                    body: JSON.stringify(data)
+                });
 
-                    if (response.ok) {
-                        const result = await response.json();
-                        console.log("Testimony created:", result);
-                        setStore({ testimonials: [...store.testimonials, result] });
-                        return true;
-                    } else {
-                        console.log("Failed to create testimony:", response.status);
-                        return false;
-                    }
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log("Testimony created:", result);
+                    setStore({ testimonials: [...store.testimonials, result] });
+                    return true;
+                } else {
+                    console.log("Failed to create testimony:", response.status);
+                    return false;
+                }
                 // } catch (error) {
                 //     console.log("Error creating testimony:", error);
                 //     return false;
@@ -400,7 +392,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error accessing localStorage:", error);
                 }
             },
-            
+
             fetchPatients: async () => {
                 try {
                     const response = await fetch(process.env.BACKEND_URL + "/api/patients", {
@@ -408,14 +400,14 @@ const getState = ({ getStore, getActions, setStore }) => {
                             "Authorization": "Bearer " + localStorage.getItem("token")
                         }
                     });
-            
+
                     if (!response.ok) {
                         if (response.status === 401) {
                             throw new Error("Unauthorized access - token may be invalid or expired");
                         }
                         throw new Error("Failed to fetch patients");
                     }
-            
+
                     const data = await response.json();
                     if (Array.isArray(data)) {
                         setStore({ patients: data });
@@ -427,7 +419,7 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error fetching patients:", error);
                 }
             },
-            
+
             createMedicalHistory: async (medicalHistory) => {
                 const store = getStore();
                 try {
@@ -443,15 +435,35 @@ const getState = ({ getStore, getActions, setStore }) => {
                         const errorData = await response.json();
                         throw new Error(errorData.Msg || "Error al crear el historial médico");
                     }
-            
+
                     const data = await response.json();
                     return data;
                 } catch (error) {
                     console.error("Error creando historial médico:", error);
                     throw error;
                 }
+            },
+            updateProfilePicture: async (formData) => { 
+                try { 
+                    const store = getStore(); 
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/profilepic`, { 
+                        method: 'PUT', 
+                        body: formData, 
+                        headers: { "Authorization": "Bearer " + store.token 
+                        } 
+                    }); 
+                    if (!response.ok) { 
+                        const errorData = await response.json(); 
+                        throw new Error(errorData.message || 'Error updating profile picture'); 
+                    } 
+                    const data = await response.json(); 
+                    setStore({ user: { ...store.user, img_url: data.url } }); 
+                    return data; 
+                } catch (error) { 
+                    console.error('Error updating profile picture:', error); 
+                    return null;
+                }
             }
-            
         }
     };
 };

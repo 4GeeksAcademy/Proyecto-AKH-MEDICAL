@@ -96,7 +96,7 @@ const SingleSignup = () => {
                                 </div>
                                 <div className="col-md-4">
                                     <label htmlFor="inputPassword4" className="form-label">Password</label>
-                                    <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="1234" className="form-control" id="inputPassword4" />
+                                    <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="xxxx" className="form-control" id="inputPassword4" />
                                 </div>
                                 <div className="col-md-2">
                                     <label htmlFor="role" className="form-label">Role</label>
@@ -147,10 +147,6 @@ const SingleSignup = () => {
                                         </div>
                                     </>
                                 )}
-                                <div className="col-md-12">
-                                    <label htmlFor="profilePicture" className="form-label">Profile Picture</label>
-                                    <input type="file" name="profile_picture" onChange={(e) => setFormData({ ...formData, profile_picture: e.target.files[0] })} className="form-control" id="profilePicture"/>
-                                </div>
                                 <div className="col-md-12 d-flex justify-content-center mt-4">
                                     <button type="submit" className="btn btn-outline-success ps-5 pe-5">Sign up</button>
                                 </div>

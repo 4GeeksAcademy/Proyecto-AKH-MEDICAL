@@ -21,7 +21,7 @@ class User(db.Model):
     city = db.Column(db.String(80), nullable=False)
     age = db.Column(db.String(80), nullable=False)
     role = db.Column(db.Enum(RoleEnum), nullable=False)
-    #img_url = db.Column(db.String(250))
+    img_url = db.Column(db.String(250))
 
     appointments = db.relationship("Appointment", back_populates="patient", lazy=True)
     testimonials = db.relationship("Testimonial", back_populates="patient", lazy=True)
@@ -40,7 +40,8 @@ class User(db.Model):
             "country": self.country,
             "city": self.city,
             "age": self.age,
-            "role": self.role.value
+            "role": self.role.value,
+            "img_url": self.img_url,
         }
 
     def serialize_doctors(self):
@@ -90,8 +91,9 @@ class Appointment(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "patient": self.patient.serialize() if self.patient else None,
-            "doctor": self.doctor.serialize() if self.doctor else None
+            "patient_id": self.patient_id.serialize() if self.patient_id else None,
+            "doctor_id": self.doctor_id.serialize() if self.doctor_id else None,
+            "date": self.date.serialize() if self.date else None
         }
 
 

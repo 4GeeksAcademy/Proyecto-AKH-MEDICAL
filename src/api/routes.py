@@ -29,8 +29,15 @@ import json
 
 
 api = Blueprint('api', __name__)
-CORS(api)
-
+CORS(api, resources={
+    r"/api/*": {
+        "origins": "*",  # En producción, especifica los dominios permitidos
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
+        "expose_headers": ["Content-Range", "X-Content-Range"],
+        "supports_credentials": True
+    }
+})
 
 @api.route('/register', methods=['POST'])
 def register():
@@ -85,38 +92,47 @@ def register():
         return jsonify(doctor.serialize())
     return jsonify(user.serialize())
 
-@api.route('/appointments', methods=['GET', 'POST'])
+@api.route('/appointments', methods=['POST'])
+@jwt_required()
 def manage_appointments(): 
-    if request.method == 'POST': 
-        data = request.json
+    try:
         user_id = get_jwt_identity()
-        print("Received data:", data)
-        # Verificar que se proporcionen todos los campos necesarios 
-        required_fields = ['doctor_id', 'date'] 
-        missing_field = [field for field in required_fields if field not in data]
-        if missing_field:
-            print("Missing fields:", missing_field)
-            return jsonify({"Msg": f"Missing fields: {', '.join(missing_field)}"}), 400
-        # Verificar la disponibilidad de la cita 
-        existing_appointment = Appointment.query.filter_by(doctor_id=data['doctor_id'], date=data['date']).first() 
-        if existing_appointment: 
-            print("Time slot is not available for Doctor ID:", data['doctor_id'], "at Date:", data['date'])
+        #patient_id = user_id["id"]
+        #print(f"user_id", user_id)
+        data = request.json
+        print ("Received data:", data)
+
+        required_fields = ['doctor_id','date']
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            print ("Missing fields:", missing_fields)
+            return jsonify({"Msg": f"Missing fields: {', '.join(missing_fields)}"}), 400
+        existing_appointment = Appointment.query.filter_by(doctor_id=data['doctor_id'], date=data['date']).first()
+        if existing_appointment:
+            print("Time slot is not available for Doctor:", data['doctor_id'],"at Date:", data['date'])
             return jsonify({"Msg": "Time slot is not available!"}),400
-        
-        # Crear y agregar la nueva cita 
-        new_appointment = Appointment( 
-            #patient_id=user_id, 
-            doctor_id=data['doctor_id'], 
-            date=data['date'] ) 
-        db.session.add(new_appointment) 
-        db.session.commit() 
-
-        print("Appoinment added: ", new_appointment)
-        return jsonify({"Msg": "Appointment added!", "appointment": new_appointment.serialize()}), 201 
-    # Obtener todas las citas 
-    appointments = Appointment.query.all() 
-    return jsonify([appointment.serialize() for appointment in appointments]), 200
-
+        new_appoinment = Appointment(
+            patient_id=user_id,
+            doctor_id=data['doctor_id'],
+            date=data['date']
+        )
+        db.session.add(new_appoinment)
+        db.session.commit()
+        print ("Appoinment added:", new_appoinment)
+        return jsonify({"Msg":"Appoinment added!", "appoinment": new_appoinment.serialize()}), 201
+    except Exception as ex:
+        print(ex)
+        return jsonify({"msg":"Error creating appoinment"}), 500
+@api.route("/appoinments", methods=["GET"])
+@jwt_required()
+def get_appoinments():
+    try:
+        appoinments = Appoinment.query.all()
+        return jsonify([appoinment.serialize() for appoinment in appoinments]), 200
+    except Exception as ex:
+        print(ex)
+        return jsonify({"msg":"Error fetching appoinments"}), 500
+    
 @api.route('/signup', methods=['POST'])
 def signup_user():
     try:
@@ -464,7 +480,7 @@ def execute_payment():
 def user_picture():
     try:
         user_id = get_jwt_identity()
-        user = User.query.filter_by(user_id=user_id).first()
+        user = User.query.filter_by(id=user_id).first()
         if user is None:
             return jsonify({"message": "User not found"}), 400
 
@@ -472,13 +488,11 @@ def user_picture():
         temp = NamedTemporaryFile(delete=False)
         file.saved(temp.name)
         extension = file.filename.rsplit('.', 1)[1].lower()
-        filename = "usersPictures/" + str(user_id) + "." + extension
+        filename = f"usersPictures/{user_id}.{extension}"
         upload_result=cloudinary.uploader.upload(temp.name, public_id=filename, asset_folder="userPicture")
         print(upload_result)
         asset_id-upload_result["public_id"]
-        user = User(
-        img_url= img_url
-    )
+        user.img_url = asset_id
         user.img_url= asset_id
         db.session.add(user)
         db.session.commit()
@@ -493,7 +507,11 @@ def user_profile_picture_get():
     user=Users.query.get(user_id)
     if user is None:
         return jsonify({"msg": "Usuario no encontrado"}), 404
-    print(user.img_url)
-    image_info=cloudinary.api.resource(user.img_url)
-    print(image_info)
-    return jsonify({"url":image_info["secure_url"]})
+    if not user.img_url:
+        return jsonify({"msg": "User has no profile picture"}), 404
+    try:
+        image_info = cloudinary.api.resource(user.img_url)
+        return jsonify({"url":image_info["secure_url"]})
+    except Exception as ex:
+        print(ex)
+        return jsonify({"msg": "Error fetching profile picture"})
