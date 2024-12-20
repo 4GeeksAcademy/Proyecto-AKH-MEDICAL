@@ -41,7 +41,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                     }
                     console.log(store.user)
                     variables = JSON.stringify(variables)
-
                     const response = await fetch(process.env.BACKEND_URL + "/api/appointments", {
                         method: 'POST',
                         body: variables,
@@ -50,24 +49,17 @@ const getState = ({ getStore, getActions, setStore }) => {
                             "Authorization": "Bearer " + localStorage.getItem("token"),
                         },
                     });
-
-                    // const contentType = response.headers.get("content-type");
-                    // if (!response.ok) {
-                    //     if (contentType && contentType.includes("application/json")) {
-                    //         const errorData = await response.json();
-                    //         console.error("Error response data:", errorData);
-                    //         throw new Error(errorData.message || 'Error adding appointment');
-                    //     } else {
-                    //         throw new Error('Unexpected error occurred.');
-                    //     }
-                    // }
-                    console.log({ response })
+                    console.log(response)
+                    if (!response.ok) { 
+                        const errorData = await response.json(); 
+                        console.error("Error response data:", errorData); 
+                        throw new Error(errorData.message || 'Error adding appointment'); 
+                    }
                     const data = await response.json();
                     setStore({ appointments: [...getStore().appointments, data] })
                     return data;
                 } catch (error) {
                     console.log(error)
-                    console.log("PASA 5.1")
                     console.log('Error adding appointment. Please try again.');
                     return null;
                 }

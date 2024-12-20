@@ -30,7 +30,7 @@ import json
 
 api = Blueprint('api', __name__)
 CORS(api, resources={
-    r"/*": {
+    r"/api/*": {
         "origins": "*",  # En producción, especifica los dominios permitidos
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"],
@@ -97,6 +97,8 @@ def register():
 def manage_appointments(): 
     try:
         user_id = get_jwt_identity()
+        #patient_id = user_id["id"]
+        #print(f"user_id", user_id)
         data = request.json
         print ("Received data:", data)
 
@@ -112,7 +114,7 @@ def manage_appointments():
         new_appoinment = Appointment(
             patient_id=user_id,
             doctor_id=data['doctor_id'],
-            date=date['date']
+            date=data['date']
         )
         db.session.add(new_appoinment)
         db.session.commit()
