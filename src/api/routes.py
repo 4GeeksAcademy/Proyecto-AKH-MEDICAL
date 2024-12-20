@@ -92,39 +92,45 @@ def register():
         return jsonify(doctor.serialize())
     return jsonify(user.serialize())
 
-@api.route('/appointments', methods=['GET', 'POST'])
+@api.route('/appointments', methods=['POST'])
+@jwt_required()
 def manage_appointments(): 
-    print("metodo: "+request.method)
-    if request.method == 'POST': 
-        data = request.json
+    try:
         user_id = get_jwt_identity()
-        print("Received data:", data)
-        # Verificar que se proporcionen todos los campos necesarios 
-        required_fields = ['doctor_id', 'date'] 
-        missing_field = [field for field in required_fields if field not in data]
-        if missing_field:
-            print("Missing fields:", missing_field)
-            return jsonify({"Msg": f"Missing fields: {', '.join(missing_field)}"}), 400
-        # Verificar la disponibilidad de la cita 
-        existing_appointment = Appointment.query.filter_by(doctor_id=data['doctor_id'], date=data['date']).first() 
-        if existing_appointment: 
-            print("Time slot is not available for Doctor ID:", data['doctor_id'], "at Date:", data['date'])
+        data = request.json
+        print ("Received data:", data)
+
+        required_fields = ['doctor_id','date']
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            print ("Missing fields:", missing_fields)
+            return jsonify({"Msg": f"Missing fields: {', '.join(missing_fields)}"}), 400
+        existing_appointment = Appointment.query.filter_by(doctor_id=data['doctor_id'], date=data['date']).first()
+        if existing_appointment:
+            print("Time slot is not available for Doctor:", data['doctor_id'],"at Date:", data['date'])
             return jsonify({"Msg": "Time slot is not available!"}),400
-        
-        # Crear y agregar la nueva cita 
-        new_appointment = Appointment( 
-            patient_id=user_id, 
-            doctor_id=data['doctor_id'], 
-            date=data['date'] ) 
-        db.session.add(new_appointment) 
-        db.session.commit() 
-
-        print("Appoinment added: ", new_appointment)
-        return jsonify({"Msg": "Appointment added!", "appointment": new_appointment.serialize()}), 201 
-    # Obtener todas las citas 
-    appointments = Appointment.query.all() 
-    return jsonify([appointment.serialize() for appointment in appointments]), 200
-
+        new_appoinment = Appointment(
+            patient_id=user_id,
+            doctor_id=data['doctor_id'],
+            date=date['date']
+        )
+        db.session.add(new_appoinment)
+        db.session.commit()
+        print ("Appoinment added:", new_appoinment)
+        return jsonify({"Msg":"Appoinment added!", "appoinment": new_appoinment.serialize()}), 201
+    except Exception as ex:
+        print(ex)
+        return jsonify({"msg":"Error creating appoinment"}), 500
+@api.route("/appoinments", methods=["GET"])
+@jwt_required()
+def get_appoinments():
+    try:
+        appoinments = Appoinment.query.all()
+        return jsonify([appoinment.serialize() for appoinment in appoinments]), 200
+    except Exception as ex:
+        print(ex)
+        return jsonify({"msg":"Error fetching appoinments"}), 500
+    
 @api.route('/signup', methods=['POST'])
 def signup_user():
     try:
