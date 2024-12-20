@@ -42,7 +42,7 @@ const CreateTestimony = () => {
                         </div>
                         <div className="col-12 mt-3">
                             <label htmlFor="exampleInputEmail1" className="form-label"><b>CANTIDAD</b></label>
-                            <input min={1} max={5} value={count} onChange={(e) => setCount(e.target.value)} type="number" className="form-control my-2" name="Testimony" placeholder="Number" required />
+                            <input min={1} max={5} value={count} onChange={(e) => setCount(e.target.value)} type="number" className="form-control my-2" name="Number" placeholder="Number" required />
                         </div>
 
                         <button className="btn btn-outline-success mt-4 p-2" type="submit" role="button"><b>SEND TESTIMONY</b></button>
