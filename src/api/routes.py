@@ -1,31 +1,30 @@
 """
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
-import paypalrestsdk
-import logging 
-paypalrestsdk.configure({ 
-    "mode": "sandbox",  
-    "client_id": "Afc8qlthkmv24JpZbwp2cCELxTbk4Kv5fGIeZk9KBwZKkdTut_7wSJ6LV4MQ9PzSNV_XS_0qTghi0SYZ",
-    "client_secret":"ENuCVvRxsMG2AhUEqtznqWnxlOATrzbPqNaBt0D6PbgaZL71uwL_JhKKS53B082VJ9wTileuhkHcKvO1" 
-    })
-logging.basicConfig(level=logging.INFO)
-
-import cloudinary
-import cloudinary.uploader
-from cloudinary.utils import cloudinary_url
-cloudinary.config(
-    cloud_name="dggx13czr",
-    api_key="355342381871128",
-    api_secret="KzBhRHHJjzLdDjcPM6cDcLP2LVE"
-)
-
-from flask import Flask, request, jsonify, url_for, Blueprint, current_app
+from flask import Flask, request, jsonify, url_for, Blueprint, current_app, Response
 from api.models import db, User, Doctor, RoleEnum, TokenBlockedList, Testimonial, TestimonialCount, MedicalHistory, Appointment
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt, jwt_required 
 import json
+import os
+import logging
+import paypalrestsdk
+import cloudinary
+
+paypalrestsdk.configure({ 
+    "mode": os.getenv("PAYPAL_MODE", "sandbox"),
+    "client_id": os.getenv("PAYPAL_CLIENT_ID"),
+    "client_secret": os.getenv("PAYPAL_CLIENT_SECRET")
+})
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET")
+)
+
 
 
 api = Blueprint('api', __name__)
@@ -98,8 +97,8 @@ def register():
 def manage_appointments(): 
     try:
         user_id = get_jwt_identity()
-        #patient_id = user_id["id"]
-        #print(f"user_id", user_id)
+        if isinstance(user_id, str):
+            user_id = json.loads(user_id)['id']
         data = request.json
         print ("Received data:", data)
 
@@ -108,31 +107,75 @@ def manage_appointments():
         if missing_fields:
             print ("Missing fields:", missing_fields)
             return jsonify({"Msg": f"Missing fields: {', '.join(missing_fields)}"}), 400
+        doctor_id=data['doctor_id']
+        date=data['date']
+        doctor = Doctor.query.get(doctor_id)
+        if not doctor:
+            return jsonify({"msg":"Doctor not found"}), 404
         existing_appointment = Appointment.query.filter_by(doctor_id=data['doctor_id'], date=data['date']).first()
         if existing_appointment:
             print("Time slot is not available for Doctor:", data['doctor_id'],"at Date:", data['date'])
             return jsonify({"Msg": "Time slot is not available!"}),400
-        new_appoinment = Appointment(
+        new_appointment = Appointment(
             patient_id=user_id,
             doctor_id=data['doctor_id'],
             date=data['date']
         )
-        db.session.add(new_appoinment)
+        db.session.add(new_appointment)
         db.session.commit()
-        print ("Appoinment added:", new_appoinment)
-        return jsonify({"Msg":"Appoinment added!", "appoinment": new_appoinment.serialize()}), 201
+        print("Appointment added:", new_appointment)
+        
+        payment = paypalrestsdk.Payment({
+            "intent": "sale",
+            "payer": {
+                "payment_method": "paypal"
+            },
+            "redirect_urls": {
+                "return_url": "http://localhost:3000/payment/execute",
+                "cancel_url": "http://localhost:3000/payment/cancel"
+            },
+            "transactions": [{
+                "item_list": {
+                    "items": [{
+                        "name": "appointment",
+                        "sku": "001",
+                        "price": f"{doctor.medical_consultant_price:.2f}",
+                        "currency": "USD",
+                        "quantity": 1
+                    }]
+                },
+                "amount": {
+                    "total": f"{doctor.medical_consultant_price:.2f}",
+                    "currency": "USD"
+                },
+                "description": "Payment for medical consultation."
+            }]
+        })
+
+        if payment.create():
+            # Obtener URL de aprobación
+            approval_url = next((link.href for link in payment.links if link.rel == "approval_url"), None)
+            return jsonify({
+                "msg": "Appointment created successfully!",
+                "appointment": new_appointment.serialize(),
+                "approval_url": approval_url
+            }), 201
+        else:
+            logging.error(f"PayPal error: {payment.error}")
+            return jsonify({"msg": "Error creating PayPal payment", "error": payment.error}), 500
+
     except Exception as ex:
         print(ex)
-        return jsonify({"msg":"Error creating appoinment"}), 500
-@api.route("/appoinments", methods=["GET"])
+        return jsonify({"msg":"Error creating appointment"}), 500
+@api.route("/appointments", methods=["GET"])
 @jwt_required()
-def get_appoinments():
+def get_appointments():
     try:
-        appoinments = Appoinment.query.all()
-        return jsonify([appoinment.serialize() for appoinment in appoinments]), 200
+        appointments = Appointment.query.all()
+        return jsonify([appointment.serialize() for appointment in appointments]), 200
     except Exception as ex:
         print(ex)
-        return jsonify({"msg":"Error fetching appoinments"}), 500
+        return jsonify({"msg":"Error fetching appointments"}), 500
     
 @api.route('/signup', methods=['POST'])
 def signup_user():
@@ -413,69 +456,22 @@ def get_users_with_histories():
         print(f"Error fetching users with histories: {e}")
         return jsonify({"error": "Failed to fetch users with histories"}), 500
 
-@api.route('/create-payment', methods=['POST'])
-def create_payment():
-    data = request.get_json()
-    doctor_id = data.get('doctor_id')
-    print("Received Doctor ID:", doctor_id)
-
-    doctor = Doctor.query.get(doctor_id)
-    if not doctor:
-        print("Doctor not found for ID:", doctor_id)
-        return jsonify({"error":"Doctor not found"}), 404
-    
-    print(f"Found Doctor: {doctor}")
-    price = doctor.medical_consultant_price
-
-    payment = paypalrestsdk.Payment({
-        "intent":"sale",
-        "payer": {
-            "payment_method":"paypal"
-        },
-        "redirect_urls": {
-            "return_url": "http://localhost:3000/payment/execute",
-            "cancel_url": "http://localhost:3000/payment/cancel"
-        },
-        "transactions":[{
-            "item_list":{
-                "items":[{
-                    "name": "appoinment",
-                    "sku": "001",
-                    "price": f"{price: .2f}",
-                    "currency":"USD",
-                    "quantity": 1
-                }]
-            },
-            "amount": {
-                "total": f"{price: .2f}",
-                "currency":"USD"
-            },
-            "description":"Payment for medical consultation."
-        }]
-    })
-    if payment.create():
-        print("Payment created successfully")
-        for link in payment.links:
-            if link.rel == "approval_url":
-                approval_url = link.href
-                return jsonify({"approval_url":approval_url})
-    else:
-        print(payment.error)
-        return jsonify({"error": payment.error}), 500    
 
 @api.route('/payment/execute', methods=['GET'])
 def execute_payment():
-    payment_id = request.args.get('paymentId')
-    payer_id = request.args.get('PayerID')
+    try:
+        payment_id = request.args.get('paymentId')
+        payer_id = request.args.get('PayerID')
 
-    payment = paypalrestsdk.Payment.find(payment_id)
-
-    if payment.execute({"payer_id": payer_id}):
-        print("Payment executed successfully")
-        return jsonify({"message": "Payment executed successfully"})
-    else:
-        print(payment.error)
-        return jsonify({"error": payment.error}), 500
+        payment = paypalrestsdk.Payment.find(payment_id)
+        if payment.execute({"payer_id": payer_id}):
+            return jsonify({"msg": "Payment executed successfully"}), 200
+        else:
+            logging.error(f"PayPal execution error: {payment.error}")
+            return jsonify({"msg": "Error executing payment", "error": payment.error}), 500
+    except Exception as e:
+        logging.error(f"Error executing payment: {str(e)}")
+        return jsonify({"msg": "Error executing payment"}), 500
 
 @api.route("/profilepic", methods=["POST"])
 @jwt_required()
@@ -517,3 +513,24 @@ def user_profile_picture_get():
     except Exception as ex:
         print(ex)
         return jsonify({"msg": "Error fetching profile picture"})
+@api.after_request
+def add_csp(response):
+    csp_policy = (
+        "default-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn 'unsafe-inline'; "
+        "script-src 'nonce-mSstq1H4Dsed1UVZcI574NjxbswCo1J+lm02A01WdjHogzEN' 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn 'unsafe-inline'; "
+        "img-src 'self' https://*.googleusercontent.com/ https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn https://ak1s.abmr.net https://ak1s.mathtag.com https://akamai.mathtag.com https://ak1.abmr.net https://www.facebook.com https://www.google-analytics.com https://px.ads.linkedin.com https://googleads.g.doubleclick.net https://www.google.co.cr https://www.google.com https://www.googleadservices.com https://*.doubleclick.net data:; "
+        "connect-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn https://192.55.233.1 'unsafe-inline' https://browser-intake-us5-datadoghq.com https://*.qualtrics.com https://www.google.com https://www.googleadservices.com https://www.google-analytics.com https://googleads.g.doubleclick.net; "
+        "object-src 'none'; "
+        "media-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn; "
+        "font-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn; "
+        "frame-src 'self' https://*.paypal.com https://*.paypal.cn https://*.paypalobjects.com https://objects.paypal.cn https://smartlock.google.com https://*.qualtrics.com https://bid.g.doubleclick.net https://*.doubleclick.net; "
+        "base-uri 'self' https://*.paypal.com https://*.paypal.cn; "
+        "worker-src 'self' blob: https://*.paypal.com; "
+        "upgrade-insecure-requests;"
+    )
+    response.headers['Content-Security-Policy'] = csp_policy
+    return response
+
+
+
+
