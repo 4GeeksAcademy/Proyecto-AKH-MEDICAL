@@ -51,12 +51,13 @@ export const Navbar = () => {
 								<input type="file" onChange={handleFileChange} className="dropdown-item" /> 
 								<button onClick={handleUpload} className="dropdown-item">Upload</button> 
 								<div className="dropdown-divider"></div> 
-								<Link className="dropdown-item" to="/profile">Profile</Link> 
 								<button className="dropdown-item" onClick={() => actions.logOut()}>Log Out</button> 
 								</div> 
 							</div> 
-						)}
-						<button className="btn btn-outline-danger mx-3" style={{ borderRadius: "24px", padding: "12px", paddingLeft: "20px", paddingRight: "20px" }} onClick={() => actions.logOut()}>Log Out</button>
+						)
+						
+						}
+						
 					</div>
 				</div>
 				<div className="container-fluid navbar-buttons d-flex justify-content-start gap-3 p-2 background">
