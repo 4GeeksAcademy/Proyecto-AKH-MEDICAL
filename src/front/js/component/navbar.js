@@ -42,9 +42,9 @@ export const Navbar = () => {
 									<button className="btn btn-outline-success btn-signup">SignUp</button>
 								</Link>
 							</div>
-						) : <button className="dropdown-item" onClick={() => actions.logOut()}>Log Out</button> 	
+						) : <button className="btn btn-outline-danger mx-3 pt-3 pb-3 ps-4 pe-4" style={{borderRadius:"23px", border:"2px solid"}} onClick={() => actions.logOut()}>LogOut</button>	
 						}
-						<button className="btn btn-outline-danger mx-3" onClick={() => actions.logOut()}>LogOut</button>
+						
 					</div>
 				</div>
 				<div className="container-fluid navbar-buttons d-flex justify-content-start gap-3 p-2 background">
