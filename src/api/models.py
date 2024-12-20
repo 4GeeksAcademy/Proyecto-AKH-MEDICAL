@@ -73,14 +73,13 @@ class Doctor(db.Model):
             "medical_consultant_price": self.medical_consultant_price,
         }
 
-
 class Appointment(db.Model):
     __tablename__ = 'appointments'
 
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
-    date = db.Column (db.DateTime)
+    date = db.Column(db.DateTime)
 
     doctor = db.relationship(Doctor)
     patient = db.relationship(User)
@@ -91,11 +90,10 @@ class Appointment(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "patient_id": self.patient_id.serialize() if self.patient_id else None,
-            "doctor_id": self.doctor_id.serialize() if self.doctor_id else None,
-            "date": self.date.serialize() if self.date else None
+            "patient": self.patient.serialize() if self.patient else None,
+            "doctor": self.doctor.serialize() if self.doctor else None,
+            "date": self.date.isoformat() if self.date else None
         }
-
 
 class TestimonialCount(Enum):
     ONE = 1

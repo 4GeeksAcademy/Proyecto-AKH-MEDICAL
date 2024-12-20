@@ -57,6 +57,7 @@ export const Navbar = () => {
 						)
 						
 						}
+						<button className="btn btn-outline-danger mx-3" onClick={() => actions.logOut()}>LogOut</button>
 						
 					</div>
 				</div>

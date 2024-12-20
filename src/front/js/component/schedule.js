@@ -29,6 +29,7 @@ export const Schedule = () => {
     useEffect(() => {
         actions.addApoint();
     }, []);
+
     const addAppointment = async (e) => {
         e.preventDefault();
         if (!store.user || !store.user.id){
@@ -51,14 +52,13 @@ export const Schedule = () => {
         const data = await actions.addApoint(newAppointment);
         if (data) {
             setAppointments([...appointments, data]);
-            const paymentResult = 
-            await actions.initiatePayment(data.id, doctorId);
+            const paymentResult = await actions.initiatePayment(data.id, doctorId);
             if (paymentResult.status === 'success') {
                 setShowPayPalButton(true);
                 setAppointmentId(data.id);
                 setPrice(paymentResult.price);
                 console.log('Redirecting to:', paymentResult.approval_url);  
-                window.location.href = paymentResult.approval_url
+                window.location.href = paymentResult.approval_url;
                 startTimer(data.id);
             } else {
                 setErrorMessage(paymentResult.message);
@@ -91,7 +91,7 @@ export const Schedule = () => {
                             <option value="">Select Doctor</option>
                             {store.doctors.map(doctor => (
                                 <option key={doctor.id} value={doctor.id}>
-                                    {doctor.info.first_name} {doctor.info.last_name} - {doctor.speciality}
+                                    {doctor?.info?.first_name} {doctor?.info?.last_name} - {doctor?.speciality}
                                 </option>
                             ))}
                         </select>
@@ -120,7 +120,6 @@ export const Schedule = () => {
                                 onApprove={(data, actions) => {
                                     return actions.order.capture().then(function(details) {
                                         alert("Transaction completed by " + details.payer.name.given_name);
-                                        // Actualiza el estado de la cita a "pagada"
                                         actions.updateAppointmentStatus(appointmentId, 'paid');
                                     });
                                 }}
@@ -131,7 +130,7 @@ export const Schedule = () => {
                     <ul>
                         {appointments.map((appointment, index) => (
                             <li key={index}>
-                                {appointment.doctor.info.first_name} {appointment.doctor.info.last_name} - {appointment.patient.first_name} {appointment.patient.last_name} - {new Date(appointment.date).toLocaleString()}
+                                {appointment?.doctor?.info?.first_name} {appointment?.doctor?.info?.last_name} - {appointment?.patient?.first_name} {appointment?.patient?.last_name} - {new Date(appointment.date).toLocaleString()}
                             </li>
                         ))}
                     </ul>

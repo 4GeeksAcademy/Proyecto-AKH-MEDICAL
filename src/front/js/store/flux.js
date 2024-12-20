@@ -19,7 +19,12 @@ const getState = ({ getStore, getActions, setStore }) => {
         actions: {
             fetchSchedule: async () => {
                 try {
-                    const response = await fetch(process.env.BACKEND_URL + "/api/appointments");
+                    const response = await fetch(process.env.BACKEND_URL + "/api/appointments", {
+                        headers: {
+                            "Authorization": "Bearer " + localStorage.getItem("token"),
+                            "Content-Type": "application/json"
+                        }
+                    });
                     if (!response.ok) {
                         throw new Error('Error fetching appointments');
                     }
@@ -27,20 +32,20 @@ const getState = ({ getStore, getActions, setStore }) => {
                     setStore({ appointments: data });
                     return data;
                 } catch (error) {
-                    setErrorMessage('error en flux');
+                    console.error(error);
                 }
-            },
+            },            
+            
             addApoint: async (newAppointment) => {
                 try {
                     const store = getStore();
-
                     let variables = {
                         patient_id: newAppointment.patient_id,
                         doctor_id: newAppointment.doctorId,
                         date: newAppointment.date
-                    }
-                    console.log(store.user)
-                    variables = JSON.stringify(variables)
+                    };
+                    console.log(store.user);
+                    variables = JSON.stringify(variables);
                     const response = await fetch(process.env.BACKEND_URL + "/api/appointments", {
                         method: 'POST',
                         body: variables,
@@ -49,57 +54,58 @@ const getState = ({ getStore, getActions, setStore }) => {
                             "Authorization": "Bearer " + localStorage.getItem("token"),
                         },
                     });
-                    console.log(response)
-                    if (!response.ok) { 
-                        const errorData = await response.json(); 
-                        console.error("Error response data:", errorData); 
-                        throw new Error(errorData.message || 'Error adding appointment'); 
+                    console.log(response);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error("Error response data:", errorData);
+                        throw new Error(errorData.message || 'Error adding appointment');
                     }
                     const data = await response.json();
-                    setStore({ appointments: [...getStore().appointments, data] })
+                    setStore({ appointments: [...getStore().appointments, data] });
                     return data;
                 } catch (error) {
-                    console.log(error)
+                    console.log(error);
                     console.log('Error adding appointment. Please try again.');
                     return null;
                 }
-            },
+            },            
 
             validateAppoinment: (newAppointment) => {
-                console.log({ newAppointment })
                 const store = getStore();
-                const doctor = store.doctors.find(doc => doc.id == newAppointment.doctorId)
-                console.log({ doctor })
-
+                const doctor = store.doctors.find(doc => doc.id === newAppointment.doctorId);
+            
                 if (!doctor) {
                     return "Doctor not found";
                 }
-                const [startTime, endTime] = doctor.time_availability.split('-').map(time => new Date('1970-01-01T${time.trim()}:00'));
+            
+                const [startTime, endTime] = doctor.time_availability.split('-').map(time => new Date(`1970-01-01T${time.trim()}:00`));
                 const appointmentTime = new Date(newAppointment.date);
                 if (appointmentTime < startTime || appointmentTime > endTime) {
-                    return "Appoinment time is outside the doctor's availability";
+                    return "Appointment time is outside the doctor's availability";
                 }
-
-                const conflictingAppoinment = store.appointments.find(app => {
+            
+                const conflictingAppointment = store.appointments.find(app => {
                     const appTime = new Date(app.date);
-                    return app.doctorID === newAppointment.doctorID && Math.abs(appTime - appointmentTime) < 30 * 60 * 1000;
+                    return app.doctorId === newAppointment.doctorId && Math.abs(appTime - appointmentTime) < 30 * 60 * 1000;
                 });
-                if (conflictingAppoinment) {
-                    return 'There is already an appoinment scheduled within 30 minutes of the requested time';
+                if (conflictingAppointment) {
+                    return 'There is already an appointment scheduled within 30 minutes of the requested time';
                 }
                 return null;
             },
+            
 
             initiatePayment: async (appointmentId, doctorID) => {
                 try {
-                    const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, { mode: 'no-cors' }, {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/create-payment`, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json', 'Authorization': 'Bearer A21AAFs9YK9gWL6Vl6AqeoPtm-nf6JmtPOwAc8kfzHVdeigPEhrOJLCvbeIt3fJ4NKvyZo_iWic7sC3RIQrVUdu7igagcuMVQ',
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem("token"),
                         },
                         body: JSON.stringify({ appointmentId, doctor_id: doctorID })
-                    }); response = requests.get('https://api-m.sandbox.paypal.com/v2/payments/authorizations/0T620041CK889853A', headers = headers)
-
+                    });
+            
                     const result = await response.json();
                     if (result.approval_url) {
                         return { status: 'success', approval_url: result.approval_url, price: result.price };
@@ -110,7 +116,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error initiating payment: ", error);
                     return { status: "error", message: error.message };
                 }
-            },
+            },            
+            
             updateAppointmentStatus: async (appointmentId, status) => {
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}/status`, { mode: 'no-cors' }, {
@@ -132,49 +139,49 @@ const getState = ({ getStore, getActions, setStore }) => {
                     return false;
                 }
             },
-            cancelAppoinment: async (appointmentId) => {
+            cancelAppointment: async (appointmentId) => {
                 try {
                     const response = await fetch(`${process.env.BACKEND_URL}/api/appointments/${appointmentId}`, { mode: 'no-cors' }, {
                         method: "DELETE"
                     });
 
                     if (!response.ok) {
-                        throw new Error("Error cancelling appoinment");
+                        throw new Error("Error cancelling appointment");
                     }
 
-                    const updatedAppoinments = getStore().appointments.filter(app => app.id !== appointmentId);
-                    setStore({ appointments: updatedAppoinments });
+                    const updatedAppointments = getStore().appointments.filter(app => app.id !== appointmentId);
+                    setStore({ appointments: updatedAppointments });
                     return true;
                 } catch (error) {
-                    console.error("Error cancelling appoinment: ", error);
+                    console.error("Error cancelling appointment: ", error);
                     return false;
                 }
             },
 
             getLogin: async (email, password) => {
-				try {
-					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/login", {
-						method: "POST",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({
-							email: email,
-							password: password
-						})
-					})
-					if (resp.ok) {
-						const data = await resp.json()
-						console.log(data)
-						localStorage.setItem("token", data.access_token)
-						setStore({ user: data.user, auth: true })
-						return true;
-					}
-					return false
-				} catch (error) {
-					console.log("Error loading message from backend", error)
-					return false
-				}
-			},
+                try {
+                    const resp = await fetch(process.env.BACKEND_URL + "/api/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        console.log(data);
+                        localStorage.setItem("token", data.access_token);
+                        setStore({ user: data.user, auth: true });
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.log("Error loading message from backend", error);
+                    return false;
+                }
+            },            
+            
 			logOut: async () => {
 				try {
 					const response = await fetch(process.env.BACKEND_URL + "/api/logout", {
