@@ -87,7 +87,7 @@ const SingleSignup = () => {
         <div style={{ backgroundImage: 'url("https://img.freepik.com/vector-gratis/diseno-plantilla-papel-tapiz-medica-abstracta_53876-61809.jpg?semt=ais_hybrid")', backgroundSize: 'cover' }}>
             <div className="d-flex vh-100 flex-column justify-content-center align-items-center pb-5">
                 <div className="mb-5">
-                    <form className="container mb-5" onSubmit={handleSubmit}>
+                    <form className="mb-5 mx-3" onSubmit={handleSubmit}>
                         <div className="row g-3 pb-4 ps-3 pe-3" style={{ borderRadius: "15px", border: "3px solid white" }}>
                             <h1 className="d-flex justify-content-center mb-2"><i>SIGN UP</i></h1>
                             <div className="col-md-4">

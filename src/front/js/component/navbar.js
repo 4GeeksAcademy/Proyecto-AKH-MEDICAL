@@ -27,7 +27,7 @@ export const Navbar = () => {
 
 	return (
 		<div className="ps-0 pe-0">
-			<nav className="navbar navbar-light bg-light pb-0">
+			<nav className="navbar navbar-light pb-0" style={{ backgroundColor: "#F4F4F4" }}>
 				<div className="container-fluid p-0 m-0">
 					<Link to="/">
 						<img className="" src={logoImgUrl} style={{ width: "250px", height: "100px" }} />
@@ -42,12 +42,12 @@ export const Navbar = () => {
 									<button className="btn btn-outline-success btn-signup">SignUp</button>
 								</Link>
 							</div>
-						) : <button className="btn btn-outline-danger mx-3 pt-3 pb-3 ps-4 pe-4" style={{borderRadius:"23px", border:"2px solid"}} onClick={() => actions.logOut()}>LogOut</button>	
+						) : <button className="btn btn-outline-danger mx-3 pt-3 pb-3 ps-4 pe-4" style={{ borderRadius: "23px", border: "2px solid" }} onClick={() => actions.logOut()}>LogOut</button>
 						}
-						
+
 					</div>
 				</div>
-				<div className="container-fluid navbar-buttons d-flex justify-content-start gap-3 p-2 background">
+				<div className="container-fluid navbar-buttons d-flex justify-content-start gap-3 p-2 background" style={{ backgroundColor: "#7A5A41" }}>
 					<div>
 						<HashLink to="/#who">
 							<button className="btn btn-dark card-buttons btn-who-we-are pt-3 pb-3 ps-4 pe-4">Who we are</button>
@@ -56,7 +56,7 @@ export const Navbar = () => {
 
 					<div>
 						<HashLink to="/#work">
-							<button className="btn btn-dark card-buttons btn-how-it-works pt-3 pb-3 ps-4 pe-4">How it works</button>
+							<button className="btn btn-dark card-buttons btn-how-it-works pt-3 pb-3 ps-4 pe-4" style={{ backgroundColor: "#D8C8A9" }}>How it works</button>
 						</HashLink>
 					</div>
 

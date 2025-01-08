@@ -21,13 +21,13 @@ const StartHome = () => {
                 <div className="row">
                     <div className="col-sm-6 d-flex justify-content-center text-center" style={{ marginTop: "8%", fontSize: "17px" }}>
                         <Link to="/doctors">
-                            <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-3 me-3 design">SPECIALISTS</button>
+                            <button style={{ borderRadius: "50px 0% 50px 0%", border: "3px solid #7A5A41", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-3 me-3 design">SPECIALISTS</button>
                         </Link>
                     </div>
                     <div className="row">
-                        <div className="col-sm-6 mt-1 d-flex justify-content-center text-center" style={{ marginTop: "0",fontSize: "17px" }}>
+                        <div className="col-sm-6 mt-1 d-flex justify-content-center text-center" style={{ marginTop: "0", fontSize: "17px" }}>
                             <Link to="/medical-history">
-                                <button style={{ borderRadius: "14px", border: "3px solid #6F4F28", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-2 me-3 design">MEDICAL HISTORY</button>
+                                <button style={{ borderRadius: "14px", border: "3px solid #7A5A41", backgroundColor: "#fffff0", color: "#4A8F8F" }} className="tooltip-btn p-2 me-3 design">MEDICAL HISTORY</button>
                             </Link>
                         </div>
                     </div>
