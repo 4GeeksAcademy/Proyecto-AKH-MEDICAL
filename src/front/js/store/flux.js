@@ -290,7 +290,6 @@ const getState = ({ getStore, getActions, setStore }) => {
                     const email = localStorage.getItem('email');
                     if (email) {
                         setStore({ doctorEmail: email });
-                        console.log("Doctor email fetched:", email);
                     } else {
                         console.error("No doctor email found in localStorage");
                     }
@@ -315,9 +314,9 @@ const getState = ({ getStore, getActions, setStore }) => {
                     }
 
                     const data = await response.json();
+
                     if (Array.isArray(data)) {
                         setStore({ patients: data });
-                        console.log("Patients fetched:", data);
                     } else {
                         throw new Error("Received invalid JSON data");
                     }
@@ -326,17 +325,135 @@ const getState = ({ getStore, getActions, setStore }) => {
                 }
             },
 
+            fetchPatientsForLoggedInDoctor: async () => {
+                const store = getStore();
+                try {
+                    const response = await fetch(process.env.BACKEND_URL + "/api/medical-history/doctor/users", {
+                        headers: {
+                            "Authorization": `Bearer ${store.token}`
+                        }
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.Msg || "Error fetching patients");
+                    }
+            
+                    const data = await response.json();
+                    setStore({ patients: data });
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching patients:", error);
+                    throw error;
+                }
+            },            
+
+            fetchDoctorEmailsForLoggedInUser: async () => { 
+                const store = getStore();
+                try {
+                    const response = await fetch(process.env.BACKEND_URL + "/api/doctor-emails", {
+                        headers: {
+                            "Authorization": `Bearer ${store.token}`
+                        }
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.Msg || "Error fetching doctor emails");
+                    }
+
+                    const data = await response.json();
+                    const emails = data.map(history => history.doctor_email);
+                    const uniqueEmails = [...new Set(emails)]; // Eliminar duplicados
+                    setStore({ doctorEmails: uniqueEmails });
+                    return uniqueEmails;
+                } catch (error) {
+                    console.error("Error fetching doctor emails:", error);
+                    throw error;
+                }
+            },
+
+            fetchMedicalHistoriesForPatient: async (patientId) => {
+                const store = getStore();
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/medical-history/${patientId}`, {
+                        headers: {
+                            "Authorization": `Bearer ${store.token}`
+                        }
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.Msg || "Error fetching medical histories");
+                    }
+            
+                    const data = await response.json();
+                    setStore({ medicalHistories: data });
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching medical histories:", error);
+                    throw error;
+                }
+            },
+            
+            fetchMedicalHistoriesForLoggedInDoctor: async () => {
+                const store = getStore();
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/medical-history/doctor`, {
+                        headers: {
+                            "Authorization": `Bearer ${store.token}`
+                        }
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.Msg || "Error fetching medical histories");
+                    }
+            
+                    const data = await response.json();
+                    setStore({ medicalHistories: data });
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching medical histories:", error);
+                    throw error;
+                }
+            },            
+
+            fetchMedicalHistoriesForDoctorAndPatient: async (patientId) => {
+                const store = getStore();
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/medical-history/doctor/patient/${patientId}`, {
+                        headers: {
+                            "Authorization": `Bearer ${store.token}`
+                        }
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.Msg || "Error fetching medical histories");
+                    }
+            
+                    const data = await response.json();
+                    setStore({ medicalHistories: data });
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching medical histories:", error);
+                    throw error;
+                }
+            },
+            
             createMedicalHistory: async (medicalHistory) => {
                 const store = getStore();
                 try {
+                    const token = localStorage.getItem("token");
+                    if (!token) {
+                        throw new Error("No token found");
+                    }
+
                     const response = await fetch(process.env.BACKEND_URL + "/api/medical-history", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": `Bearer ${store.token}`
+                            "Authorization": `Bearer ${token}`
                         },
                         body: JSON.stringify(medicalHistory)
                     });
+
                     if (!response.ok) {
                         const errorData = await response.json();
                         throw new Error(errorData.Msg || "Error al crear el historial médico");
@@ -349,6 +466,51 @@ const getState = ({ getStore, getActions, setStore }) => {
                     throw error;
                 }
             },
+
+            fetchDoctorsForLoggedInPatient: async () => {
+                const store = getStore();
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/doctors-for-patient`, {
+                        headers: {
+                            "Authorization": `Bearer ${store.token}`
+                        }
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.Msg || "Error fetching doctors");
+                    }
+            
+                    const data = await response.json();
+                    setStore({ doctors: data });
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching doctors:", error);
+                    throw error;
+                }
+            },
+            
+            fetchMedicalHistoriesWithDoctor: async (doctorId) => {
+                const store = getStore();
+                try {
+                    const response = await fetch(`${process.env.BACKEND_URL}/api/medical-histories/doctor/${doctorId}`, {
+                        headers: {
+                            "Authorization": `Bearer ${store.token}`
+                        }
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.Msg || "Error fetching medical histories");
+                    }
+            
+                    const data = await response.json();
+                    setStore({ medicalHistories: data });
+                    return data;
+                } catch (error) {
+                    console.error("Error fetching medical histories:", error);
+                    throw error;
+                }
+            },
+            
             updateProfilePicture: async (formData) => { 
                 try { 
                     const store = getStore(); 

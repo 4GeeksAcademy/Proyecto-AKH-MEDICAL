@@ -142,8 +142,6 @@ class TokenBlockedList(db.Model):
             "jti": self.jti,
         }
 
-
-#------------------------MEDICAL HISTORY---------------------//
 class MedicalHistory(db.Model):
     __tablename__ = 'medical_histories'
 

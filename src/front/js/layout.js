@@ -20,8 +20,14 @@ import StartHome from "./component/StartHome";
 import { Home } from "./pages/Home";
 import CreateTestimony from "./pages/CreateTestimony";
 import Testimonials from "./component/Testimonials";
+
 import MedicalHistory from "./pages/MedicalHistory";
 import CreateMedicalHistory from "./pages/CreateMedicalHistory";
+import ViewPatients from "./pages/ViewPatients";
+import ViewMedicalHistory from "./pages/ViewMedicalHistory";
+import PatientMedicalHistory from "./pages/PatientMedicalHistory";
+import ViewDoctors from "./pages/ViewDoctors";
+import DoctorMedicalHistories from "./pages/DoctorMedicalHistories";
 
 const Layout = () => {
     const basename = process.env.BASENAME || "";
@@ -44,8 +50,13 @@ const Layout = () => {
                         <Route element={<SingleLogin />} path="/login" />
                         <Route element={<SingleSignup />} path="/signup" />
                         <Route element={<CreateTestimony />} path="/testimonials" />
-                        <Route element={<MedicalHistory />} path="/medical-history" />
-                        <Route element={<CreateMedicalHistory />} path="/create-medical-history" />
+                        <Route path="/create-medical-history" element={<CreateMedicalHistory />} />
+                        <Route path="/view-patients" element={<ViewPatients />} />
+                        <Route path="/patient-history/:id" element={<PatientMedicalHistory />} />
+                        <Route path="/view-medical-history" element={<ViewMedicalHistory />} />
+                        <Route path="/medical-history" element={<MedicalHistory />} />
+                        <Route path="/view-doctors" element={<ViewDoctors />} />
+                        <Route path="/doctor-medical-histories/:doctorId" element={<DoctorMedicalHistories />} />
                         <Route element={<Home />} path="/" />
                     </Routes>
                     {/* <Footer /> */}

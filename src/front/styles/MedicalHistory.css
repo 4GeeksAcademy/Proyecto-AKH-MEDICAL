@@ -3,7 +3,7 @@
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 40px;
+    margin-top: 25px;
 }
 
 .doctor-title {
@@ -26,7 +26,7 @@
 }
 
 .doctor-btn:hover {
-    background-color: #0056b3;
+    background-color: #008c7b;
     transform: translateY(-3px);
 }
 
