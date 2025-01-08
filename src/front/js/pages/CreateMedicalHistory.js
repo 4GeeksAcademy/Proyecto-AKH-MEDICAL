@@ -12,7 +12,7 @@ const CreateMedicalHistory = () => {
     useEffect(() => {
         actions.fetchDoctorEmail();
         actions.fetchPatients();
-    }, []); // Ejecutar solo una vez al montar el componente
+    }, []); 
 
     const handleSubmit = (e) => {
         e.preventDefault();
