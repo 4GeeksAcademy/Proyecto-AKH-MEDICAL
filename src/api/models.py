@@ -80,7 +80,7 @@ class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
-    date = db.Column (db.DateTime)
+    date = db.Column (db.String(80), nullable=False)
 
     doctor = db.relationship(Doctor)
     patient = db.relationship(User)

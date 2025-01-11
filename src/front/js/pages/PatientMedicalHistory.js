@@ -15,9 +15,6 @@ const PatientMedicalHistory = () => {
         });
     }, [actions, id]);
 
-    //  useEffect(() => {
-    //     actions.fetchMedicalHistoriesForDoctorAndPatient();
-    // }, []);
 
     const goBack = () => {
         navigate(-1);

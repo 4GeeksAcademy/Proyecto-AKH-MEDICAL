@@ -8,10 +8,10 @@ export const Schedule = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    useEffect(() => { 
-        const script = document.createElement('script'); 
-        script.src = "https://sandbox.paypal.com/sdk/js?client-id=Afc8qlthkmv24JpZbwp2cCELxTbk4Kv5fGIeZk9KBwZKkdTut_7wSJ6LV4MQ9PzSNV_XS_0qTghi0SYZ&components=buttons"; 
-        script.async = true; 
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = "https://sandbox.paypal.com/sdk/js?client-id=Afc8qlthkmv24JpZbwp2cCELxTbk4Kv5fGIeZk9KBwZKkdTut_7wSJ6LV4MQ9PzSNV_XS_0qTghi0SYZ&components=buttons";
+        script.async = true;
         script.onload = () => {
             window.paypal.Buttons().render('#paypal-button-container');
         };
@@ -23,12 +23,12 @@ export const Schedule = () => {
             } else {
                 console.error('Element with class "some-class" not found');
             }
-        });        
-        return () =>{
+        });
+        return () => {
             document.body.removeChild(script);
         }
-        
-    },[]);
+
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

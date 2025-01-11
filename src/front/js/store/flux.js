@@ -345,7 +345,8 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error("Error fetching patients:", error);
                     throw error;
                 }
-            },            
+            },    
+                
 
             fetchDoctorEmailsForLoggedInUser: async () => { 
                 const store = getStore();
@@ -531,7 +532,25 @@ const getState = ({ getStore, getActions, setStore }) => {
                     console.error('Error updating profile picture:', error); 
                     return null;
                 }
-            }
+            },
+
+            addPatient: async (patientData) => {
+                try {
+                    const response = await fetch("/api/patients", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(patientData),
+                    });
+                    if (!response.ok) throw new Error("Error adding patient");
+                    
+                    const newPatient = await response.json();
+                    const updatedPatients = [...getStore().patients, newPatient];
+                    setStore({ patients: updatedPatients }); // Actualizar el store
+                } catch (error) {
+                    console.error("Error adding patient:", error);
+                }
+            },
+            
         }
     };
 };

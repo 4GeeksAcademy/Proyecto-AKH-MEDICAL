@@ -9,6 +9,7 @@ const ViewMedicalHistory = () => {
     useEffect(() => {
         actions.fetchDoctorEmailsForLoggedInUser().then(emails => {
             setDoctorEmails(emails);
+        actions.fetchDoctorEmailsForLoggedInUser();
         });
     }, [actions]);
 

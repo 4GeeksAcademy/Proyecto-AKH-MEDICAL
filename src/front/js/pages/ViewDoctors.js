@@ -20,10 +20,6 @@ const ViewDoctors = () => {
         fetchDoctors();
     }, []); 
 
-    useEffect(() =>{
-            actions.fetchDoctorsForLoggedInPatient()
-    }, []);
-
     const viewMedicalHistories = (doctorId) => {
         navigate(`/doctor-medical-histories/${doctorId}`);
     };
