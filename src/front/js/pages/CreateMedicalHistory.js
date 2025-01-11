@@ -12,7 +12,7 @@ const CreateMedicalHistory = () => {
     useEffect(() => {
         actions.fetchDoctorEmail();
         actions.fetchPatients();
-    }, []); 
+    }, [store.medicalHistories]); 
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -20,7 +20,7 @@ const CreateMedicalHistory = () => {
             doctor_email: store.doctorEmail,
             user_email: userEmail,
             observation,
-        };
+        }; 
 
         actions.createMedicalHistory(medicalHistory)
             .then(data => {

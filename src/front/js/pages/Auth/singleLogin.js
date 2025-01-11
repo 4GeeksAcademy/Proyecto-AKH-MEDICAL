@@ -19,6 +19,7 @@ export const SingleLogin = () => {
         }
         let resp = await actions.getLogin(email, password)
         if (resp) {
+            actions.fetchPatientsForLoggedInDoctor();
             navigate("/")
         } else {
             mensajeError("Something went wrong")
